@@ -23,3 +23,23 @@ possibly exploiting the following
 HINTS: 
 * first compute the vanishing point of the road direction (by tracking vehicle features and intersecting their imaged motion directions)
 * apply the cross ratio invariance to compute the coordinate of any vehicle along the road direction in correspondence to each frame. 
+
+## ressources
+### sources
+https://ieeexplore.ieee.org/document/9469561
+https://github.com/andrewssobral/simple_vehicle_counting
+
+http://www.insecam.org/en/
+
+https://jorgestutorials.com/pycvtraffic.html
+
+https://github.com/topics/vehicle-counting
+
+### videos
+https://www.youtube.com/watch?v=e_WBuBqS9h8
+difficult : https://www.youtube.com/watch?v=rtEQ3mi0vBQ
+
+https://www.youtube.com/watch?v=5_XSYlAfJZM&list=PLcQZGj9lFR7y5WikozDSrdk6UCtAnM9mB&index=42
+https://www.youtube.com/watch?v=jjlBnrzSGjc&list=PLcQZGj9lFR7y5WikozDSrdk6UCtAnM9mB
+
+https://www.youtube.com/watch?v=QuUxHIVUoaY
