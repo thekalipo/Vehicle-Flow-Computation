@@ -10,7 +10,29 @@ f2gray = cv2.cvtColor(f2, cv2.COLOR_BGR2GRAY)
 
 count = 0
 
+vehicles = []
 
+
+def distance(x1,x2,y1,y2):
+    return ((x1-x2)**2+(y1-y2)**2)**0.5
+
+def search_vechicle(x,y):
+    for i,v in enumerate(vehicles):
+        dist = distance(x, v[0], y, v[1])
+        if dist < 40:
+            vehicles[i] = (x,y)
+            print(f"found: ({x},{y}) index", i, "",vehicles)
+            return True
+    vehicles.append((x,y))
+    print(False)
+    return False
+
+def delVehicle(x,y):
+    for v in vehicles:
+        dist = distance(x, v[0], y, v[1])
+        if dist < 40:
+            vehicles.remove(v)
+            print("removed :", vehicles)
 
 while(c.isOpened()):
     _,f = c.read()
@@ -34,7 +56,10 @@ while(c.isOpened()):
         # get the xmin, ymin, width, and height coordinates from the contours
         (x, y, w, h) = cv2.boundingRect(contour)
 
-        
+        if 155<=y<=165 and search_vechicle(x+w/2, y+h/2):
+            count += 1
+        elif y > 165:
+            delVehicle(x+w/2, y+h/2)
         # draw the bounding boxes
         cv2.rectangle(f, (x, y), (x+w, y+h), (0, 255, 0), 2)
 
