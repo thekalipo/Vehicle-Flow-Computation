@@ -59,7 +59,7 @@ while(c.isOpened()):
         if 155<=y<=165 and search_vechicle(x+w/2, y+h/2):
             count += 1
         elif y > 165:
-            delVehicle(x+w/2, y+h/2)
+            delVehicle(x+w/2, y+h/2) # pas du tout opti mais bon ^^
         # draw the bounding boxes
         cv2.rectangle(f, (x, y), (x+w, y+h), (0, 255, 0), 2)
 
@@ -67,6 +67,7 @@ while(c.isOpened()):
     cv2.putText(f,"count : "+str(count), (10,50), 0, 1, 255,2)
 
     cv2.imshow('Detected Objects', f)
+    
 
     #imshow("diff", dilate_frame)
     k = cv2.waitKey(20)
