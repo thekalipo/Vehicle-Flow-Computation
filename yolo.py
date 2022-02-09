@@ -104,14 +104,17 @@ import sort
 import numpy as np
 
 CONFIDENCE_THRESHOLD = 0.2
-NMS_THRESHOLD = 0.5
+NMS_THRESHOLD = 0.2
 COLORS = [(0, 255, 255), (255, 255, 0), (0, 255, 0), (255, 0, 0)]
 
 class_names = []
 with open("coco.names", "r") as f:
     class_names = [cname.strip() for cname in f.readlines()]
 
-mot_tracker = sort.Sort(5, 2) 
+def accepted_classes(classid):
+    return classid in [2,3,5,7]
+
+mot_tracker = sort.Sort() 
 
 vc = cv2.VideoCapture("video.mp4")
 
@@ -128,6 +131,7 @@ while cv2.waitKey(1) < 1:
     start = time.time()
     classes, scores, boxes = model.detect(frame, CONFIDENCE_THRESHOLD, NMS_THRESHOLD)
     end = time.time()
+    
     #print(boxes,"||",scores)
     #print(boxes)
     boxes2 = np.array([list(b[:2])+[b[2]+b[0], b[3]+b[1]] for i,b in enumerate(boxes)])
@@ -143,13 +147,13 @@ while cv2.waitKey(1) < 1:
         cv2.rectangle(frame, tuple(b[:2]), tuple(b[2:4]), COLORS[0])
         cv2.putText(frame, str(b[4]), (b[0], b[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLORS[0], 2)
     end_drawing = time.time()
+    print(mot_ids)
 
     """
-    print(mot_ids)
     start_drawing = time.time()
     for (classid, score, box) in zip(classes, scores, boxes):
         color = COLORS[int(classid) % len(COLORS)]
-        if classid < len(class_names):
+        if classid < len(class_names) and accepted_classes(classid):
             label = "%s : %f" % (class_names[classid], score)
             cv2.rectangle(frame, box, color, 2)
             cv2.putText(frame, label, (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
