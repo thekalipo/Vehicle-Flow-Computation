@@ -83,7 +83,7 @@ class VehicleCounter(object):
     @staticmethod
     def is_valid_vector(a):
         distance, angle = a
-        threshold_distance = max(5.0, -0.008 * angle**2 + 0.4 * angle + 25.0)
+        threshold_distance = max(20., -0.008 * angle**2 + 0.4 * angle + 25.0)
         return (distance <= threshold_distance)
 
 

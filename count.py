@@ -53,7 +53,7 @@ while(c.isOpened()):
     print(fgray.shape, processed.shape, car_counter.divider)
     cv2.line(processed, (0, int(car_counter.divider)), (fgray.shape[1], int(car_counter.divider)), DIVIDER_COLOUR, 1)
     th, dframe = cv2.threshold(diff, 100, 255, cv2.THRESH_BINARY)
-    dilate_frame = cv2.dilate(dframe, None, iterations=5)
+    dilate_frame = cv2.dilate(dframe, None, iterations=10)
 
     contours, hierarchy = cv2.findContours(dilate_frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -95,7 +95,7 @@ while(c.isOpened()):
     
 
     #imshow("diff", dilate_frame)
-    k = cv2.waitKey(20)
+    k = cv2.waitKey()#20
 
     if k == 27:
         break
