@@ -124,7 +124,8 @@ class VehicleCounter(object):
 
         # Count any uncounted vehicles that are past the divider
         for vehicle in self.vehicles:
-            if not vehicle.counted and (vehicle.last_position[1] > self.divider):
+            print("--",vehicle.last_position)
+            if not vehicle.counted and abs(vehicle.last_position[1] - self.divider) < 20:
                 self.vehicle_count += 1
                 vehicle.counted = True
                 print(f"Counted vehicle #{vehicle.id} (total count={self.vehicle_count}).")
@@ -135,7 +136,7 @@ class VehicleCounter(object):
                 vehicle.draw(output_image)
 
             cv2.putText(output_image, ("%02d" % self.vehicle_count), (142, 10)
-                , cv2.FONT_HERSHEY_PLAIN, 0.7, (127, 255, 255), 1)
+                , cv2.FONT_HERSHEY_PLAIN, 1, (127, 255, 255), 1)
 
         # Remove vehicles that have not been seen long enough
         removed = [ v.id for v in self.vehicles

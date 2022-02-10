@@ -88,14 +88,14 @@ while(c.isOpened()):
 
     car_counter.update_count(matches, processed)
 
-    cv2.line(f, (0,160), (640, 160), (255,0,0), 2)
+    #cv2.line(f, (0,160), (640, 160), (255,0,0), 2)
     #cv2.putText(f,"count : "+str(car_counter.), (10,50), 0, 1, 255,2)
 
     cv2.imshow('Detected Objects', processed)
     
 
     #imshow("diff", dilate_frame)
-    k = cv2.waitKey()#20
+    k = cv2.waitKey(20)#20
 
     if k == 27:
         break
