@@ -102,6 +102,7 @@ import cv2
 import time
 import sort
 import numpy as np
+import vehicleCounter
 
 CONFIDENCE_THRESHOLD = 0.2
 NMS_THRESHOLD = 0.2
@@ -123,6 +124,8 @@ net = cv2.dnn.readNet("yolo-fastest-xl.weights", "yolo-fastest-xl.cfg")
 model = cv2.dnn_DetectionModel(net)
 model.setInputParams(size=(416, 416), scale=1/255, swapRB=True)
 
+car_counter = vehicleCounter.VehicleCounter((640,360), 180)#f2.shape[0] / 2)
+
 while cv2.waitKey(1) < 1:
     (grabbed, frame) = vc.read()
     if not grabbed:
@@ -131,9 +134,25 @@ while cv2.waitKey(1) < 1:
     start = time.time()
     classes, scores, boxes = model.detect(frame, CONFIDENCE_THRESHOLD, NMS_THRESHOLD)
     end = time.time()
+
+    start_drawing = time.time()
+    matches = []
+    for (classid, score, box) in zip(classes, scores, boxes):
+        color = COLORS[int(classid) % len(COLORS)]
+        if classid < len(class_names):
+            label = "%s : %f" % (class_names[classid], score)
+            cv2.rectangle(frame, box, color, 2)
+            matches.append([box,(box[0]+box[2]//2, box[1]+box[3]//2)])
+        else :
+            print(classid, score)
+    car_counter.update_count(matches, frame)
+    end_drawing = time.time()
+
+    #car_counter.update_count()
     
     #print(boxes,"||",scores)
     #print(boxes)
+    """
     boxes2 = np.array([list(b[:2])+[b[2]+b[0], b[3]+b[1]] for i,b in enumerate(boxes)])
     #print("boxes",boxes2)
     #continue
@@ -141,13 +160,16 @@ while cv2.waitKey(1) < 1:
     mot_ids = mot_tracker.update(boxes2 if len(scores) else np.empty((0, 5)))
     #print(mot_ids)
     start_drawing = time.time()
+    matches = []
     for b in mot_ids:
         #print(tuple(b[:2]))
         #print(tuple(b[2:4]))
+        #matches.append(tuple(b[:4]), )
         cv2.rectangle(frame, tuple(b[:2]), tuple(b[2:4]), COLORS[0])
         cv2.putText(frame, str(b[4]), (b[0], b[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLORS[0], 2)
     end_drawing = time.time()
     print(mot_ids)
+    """
 
     """
     start_drawing = time.time()
