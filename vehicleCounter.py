@@ -4,7 +4,10 @@ import cv2
 import math
 import numpy as np
 
+"""
+TODO: distance between angles for valid angle
 
+"""
 
 CAR_COLOURS = [ (0,0,255), (0,106,255), (0,216,255), (0,255,182), (0,255,76)
     , (144,255,0), (255,255,0), (255,148,0), (255,0,178), (220,0,255) ]
@@ -16,19 +19,43 @@ class Vehicle(object):
         self.positions = [position]
         self.frames_since_seen = 0
         self.counted = False
-        self.vector = (0,0)
+        self.angles = []
+        self.vector = (0,0) # distance, angle
+        self.avg_vector = (0,0,0) # distance, angle, number
 
     @property
     def last_position(self):
         return self.positions[-1]
+
+    @staticmethod
+    def circ_mean(angles):
+        """angles in degrees"
+        """
+        cosList = []
+        cosSum = 0.0
+        sinSum = 0.0
+        for i in angles:
+            cosSum += math.cos(math.radians(float(i)))
+            sinSum += math.sin(math.radians(float(i)))
+        N = len(angles)
+        C = cosSum/N
+        S = sinSum/N
+        theMean = math.atan2(S,C)
+        if theMean < 0.0:
+            theMean += math.radians(360.0)
+        return math.degrees(theMean)
 
     def add_position(self, new_position):
         self.positions.append(new_position)
         self.frames_since_seen = 0
     
     def set_vector(self, vector):
-        self.vector = (vector[0], vector[1] + 90)
-        print("angle", vector)
+        self.vector = (vector[0], vector[1])
+        self.angles.append(self.vector[1]+90)
+        self.avg_vector = ((self.avg_vector[0] * self.avg_vector[2] + self.vector[0]) / (self.avg_vector[2] + 1), 
+                          (self.avg_vector[1] * self.avg_vector[2] + self.vector[1]) / (self.avg_vector[2] + 1), 
+                          self.avg_vector[2] + 1)
+        print(f"angle {self.avg_vector[2]}", self.vector, self.avg_vector)
 
     def draw(self, output_image):
         car_colour = CAR_COLOURS[self.id % len(CAR_COLOURS)]
@@ -38,11 +65,13 @@ class Vehicle(object):
                 , False, car_colour, 1)
         if len(self.positions) > 2:
             last = self.positions[-1]
-            dist = self.vector[0] * 4
-            x =  round(last[0] + dist * math.cos(self.vector[1] * CV_PI / 180.0))
-            y =  round(last[1] + dist * math.sin(self.vector[1] * CV_PI / 180.0))
+            #dist = self.vector[0] * 4
+            dist = self.avg_vector[0] * 4
+            angle = self.circ_mean(self.angles) #self.avg_vector[1]
+            x =  round(last[0] + dist * math.cos(angle * CV_PI / 180.0))
+            y =  round(last[1] + dist * math.sin(angle * CV_PI / 180.0))
             #print(x,y)
-            cv2.arrowedLine(output_image,last, (x,y), car_colour, 3)
+            cv2.arrowedLine(output_image,last, (x, y), car_colour, 3)
 
 
 
@@ -92,7 +121,6 @@ class VehicleCounter(object):
                 angle = 180.0        
 
         return distance, angle 
-
 
     @staticmethod
     def is_valid_vector(a):
