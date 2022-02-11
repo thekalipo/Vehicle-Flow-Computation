@@ -25,9 +25,15 @@ class Vehicle(object):
         self.vector = (0,0) # distance, angle
         self.avg_vector = (0,0,0) # distance, angle, number
 
+        self.line = []
+
     @property
     def last_position(self):
         return self.positions[-1]
+    
+    @property
+    def first_position(self):
+        return self.positions[0]
 
     @staticmethod
     def circ_mean(angles):
@@ -77,6 +83,14 @@ class Vehicle(object):
             #cv2.putText(output_image, ("%02d" % self.vehicle_count), (142, 10), cv2.FONT_HERSHEY_PLAIN, 1, (127, 255, 255), 1)
             cv2.putText(output_image, f"{self.avg_vector[0]:.1f}", (last[0] - 40, last[1] - 40), cv2.FONT_HERSHEY_PLAIN, 1, car_colour)
 
+    def lineTrack(self, output_image):
+        if len(self.positions) > 8:
+            # if self.counted:
+            a = [self.first_position[0], self.first_position[1], 1]
+            b = [self.last_position[0], self.last_position[1], 1]
+            self.line.append(np.cross(a, b))
+
+            cv2.line(output_image, (a[0], a[1]), (b[0], b[1]), (0,0,255), 1)
 
 
 # ============================================================================
@@ -94,6 +108,10 @@ class VehicleCounter(object):
         self.next_vehicle_id = 0
         self.vehicle_count = 0
         self.max_unseen_frames = 7
+
+        self.vPoints = []
+        self.vPoint = 0
+        self.vPointAvg = 0
 
 
 
@@ -177,23 +195,66 @@ class VehicleCounter(object):
             if not vehicle.counted and abs(vehicle.last_position[1] - self.divider) < 20:
                 self.vehicle_count += 1
                 vehicle.counted = True
+                # vehicle.lineTrack(output_image)
                 print(f"Counted vehicle #{vehicle.id} (total count={self.vehicle_count}).")
+
+        for i in range(len(self.vehicles)):
+            if self.vehicles[i].counted:
+                self.vehicles[i].lineTrack(output_image)
+                if i > 0:
+                    try:
+                        v = np.cross(self.vehicles[i-1].line[-1], self.vehicles[i].line[-1])
+                        v = v/v[2]
+                    except:
+                        continue
+                    self.vPointAvg = v
+        print(self.vPointAvg)
 
         # Optionally draw the vehicles on an image
         if output_image is not None:
+            lines = []
             for vehicle in self.vehicles:
                 vehicle.draw(output_image)
+                # vehicle.lineTrack()
+                # print(vehicle.line)
+
+                ##### working "hardcoded" #####
+                if vehicle.id == 2:
+                    a = [vehicle.first_position[0], vehicle.first_position[1], 1]
+                    b = [vehicle.last_position[0], vehicle.last_position[1], 1]
+                    lines.append(np.cross(a, b))
+                if vehicle.id == 8:
+                    c = [vehicle.first_position[0], vehicle.first_position[1], 1]
+                    d = [vehicle.last_position[0], vehicle.last_position[1], 1]
+                    lines.append(np.cross(c, d))
+                if len(lines) > 1:
+                    if lines[1][0]:
+                        v = np.cross(lines[0], lines[1])
+                        v = v/v[2]
+                        self.vPoints.append(v)
+                    # if not np.isnan(v[0]):
+                        cv2.circle(output_image, (int(v[0]), int(v[1])), 10, (0, 0, 255), -1)
+                ##### working "hardcoded" #####
+                
+            if len(self.vPoints) > 0:
+                self.vPoint = self.vPoints[-1]
+                print('VANISNING POINT: ', self.vPoint)
+
+
 
             cv2.putText(output_image, (f"{self.vehicle_count:.2f}"), (142, 10)
                 , cv2.FONT_HERSHEY_PLAIN, 1, (127, 255, 255), 1)
 
         # Remove vehicles that have not been seen long enough
-        removed = [ v.id for v in self.vehicles
+        # removed = [ v.id for v in self.vehicles
+        #     if v.frames_since_seen >= self.max_unseen_frames ]
+        removed = [ v for v in self.vehicles
             if v.frames_since_seen >= self.max_unseen_frames ]
         self.vehicles[:] = [ v for v in self.vehicles
             if not v.frames_since_seen >= self.max_unseen_frames ]
-        for id in removed:
-            print(f"Removed vehicle #{id}.")
+        for v in removed:
+            # v.lineTrack(output_image)
+            print(f"Removed vehicle #{v.id}.")
 
         print(f"Count updated, tracking {len(self.vehicles)} vehicles.")
 
