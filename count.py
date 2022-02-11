@@ -19,7 +19,7 @@ BOUNDING_BOX_COLOUR = (255, 0, 0)
 CENTROID_COLOUR = (0, 0, 255)
 
 frame_number = 1
-car_counter = vehicleCounter.VehicleCounter(f2.shape[:2], f2.shape[0] / 2)
+car_counter = vehicleCounter.VehicleCounter(f2.shape[:2], f2.shape[0] / 4)#, c.get(cv2.CAP_PROP_FPS))
 
 
 while(c.isOpened()):

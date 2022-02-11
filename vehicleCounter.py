@@ -6,6 +6,7 @@ import numpy as np
 
 """
 TODO: distance between angles for valid angle
+calculate speed : https://www.sciencedirect.com/science/article/pii/S0379073813005112
 
 """
 
@@ -13,6 +14,7 @@ CAR_COLOURS = [ (0,0,255), (0,106,255), (0,216,255), (0,255,182), (0,255,76)
     , (144,255,0), (255,255,0), (255,148,0), (255,0,178), (220,0,255) ]
 
 CV_PI = 3.14
+
 class Vehicle(object):
     def __init__(self, id, position):
         self.id = id
@@ -72,22 +74,27 @@ class Vehicle(object):
             y =  round(last[1] + dist * math.sin(angle * CV_PI / 180.0))
             #print(x,y)
             cv2.arrowedLine(output_image,last, (x, y), car_colour, 2)
+            #cv2.putText(output_image, ("%02d" % self.vehicle_count), (142, 10), cv2.FONT_HERSHEY_PLAIN, 1, (127, 255, 255), 1)
+            cv2.putText(output_image, f"{self.avg_vector[0]:.1f}", (last[0] - 40, last[1] - 40), cv2.FONT_HERSHEY_PLAIN, 1, car_colour)
 
 
 
 # ============================================================================
 
 class VehicleCounter(object):
-    def __init__(self, shape, divider):
+    def __init__(self, shape, divider, fps=30):
         print("vehicle_counter")
 
         self.height, self.width = shape
         self.divider = divider
+        self.fps = fps
+        print(fps)
 
         self.vehicles = []
         self.next_vehicle_id = 0
         self.vehicle_count = 0
         self.max_unseen_frames = 7
+
 
 
     @staticmethod
@@ -177,7 +184,7 @@ class VehicleCounter(object):
             for vehicle in self.vehicles:
                 vehicle.draw(output_image)
 
-            cv2.putText(output_image, ("%02d" % self.vehicle_count), (142, 10)
+            cv2.putText(output_image, (f"{self.vehicle_count:.2f}"), (142, 10)
                 , cv2.FONT_HERSHEY_PLAIN, 1, (127, 255, 255), 1)
 
         # Remove vehicles that have not been seen long enough

@@ -45,7 +45,11 @@ np.float32([[10, 100],
             [200, 50], 
             [100, 250]])
   
-M = cv2.getPerspectiveTransform(pts1, pts2)
+#M = cv2.getPerspectiveTransform(pts1, pts2)
+M = np.array([[2.04985274e+00, 1.45569252e+00, -7.39462094e+02],
+ [-1.59806446e+00, 1.82445693e+01, -6.44419495e+02],
+ [-1.02983423e-03, 1.27734078e-02, 1.00000000e+00]])
+
 #M = np.array([[3.44, 2.8236, -1016.5],
 #     [0.0452, 3.6178, -90.5]])
 print(M)
@@ -56,6 +60,24 @@ cv2.imshow('image', img)
 cv2.imshow('dst', dst)
 cv2.waitKey()          
 cv2.destroyAllWindows()
+
+
+c = cv2.VideoCapture("video.mp4")
+
+while(1):
+    _,f = c.read()
+	
+    dst = cv2.warpPerspective(f, M, (200, 800))
+
+    cv2.imshow('avg1',f)
+    cv2.imshow('avg2',dst)
+    k = cv2.waitKey(20)
+
+    if k == 27:
+        break
+
+cv2.destroyAllWindows()
+c.release()
 """
 from random import randint
 from sys import maxsize
