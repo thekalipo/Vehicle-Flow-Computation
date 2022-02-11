@@ -1,4 +1,5 @@
 # inspired by https://stackoverflow.com/questions/36254452/counting-cars-opencv-python-issue/36274515#36274515
+from turtle import position
 import cv2
 import math
 import numpy as np
@@ -8,13 +9,14 @@ import numpy as np
 CAR_COLOURS = [ (0,0,255), (0,106,255), (0,216,255), (0,255,182), (0,255,76)
     , (144,255,0), (255,255,0), (255,148,0), (255,0,178), (220,0,255) ]
 
-
+CV_PI = 3.14
 class Vehicle(object):
     def __init__(self, id, position):
         self.id = id
         self.positions = [position]
         self.frames_since_seen = 0
         self.counted = False
+        self.vector = (0,0)
 
     @property
     def last_position(self):
@@ -23,6 +25,10 @@ class Vehicle(object):
     def add_position(self, new_position):
         self.positions.append(new_position)
         self.frames_since_seen = 0
+    
+    def set_vector(self, vector):
+        self.vector = (vector[0], vector[1] + 90)
+        print("angle", vector)
 
     def draw(self, output_image):
         car_colour = CAR_COLOURS[self.id % len(CAR_COLOURS)]
@@ -30,6 +36,14 @@ class Vehicle(object):
             cv2.circle(output_image, point, 2, car_colour, -1)
             cv2.polylines(output_image, [np.int32(self.positions)]
                 , False, car_colour, 1)
+        if len(self.positions) > 2:
+            last = self.positions[-1]
+            dist = self.vector[0] * 4
+            x =  round(last[0] + dist * math.cos(self.vector[1] * CV_PI / 180.0))
+            y =  round(last[1] + dist * math.sin(self.vector[1] * CV_PI / 180.0))
+            #print(x,y)
+            cv2.arrowedLine(output_image,last, (x,y), car_colour, 3)
+
 
 
 # ============================================================================
@@ -95,6 +109,7 @@ class VehicleCounter(object):
             vector = self.get_vector(vehicle.last_position, centroid)
             if self.is_valid_vector(vector):
                 vehicle.add_position(centroid)
+                vehicle.set_vector(vector)
                 print(f"Added match ({centroid[0]}, {centroid[1]}) to vehicle #{vehicle.id}. vector=({vector[0]:.2f},{vector[1]:.2f})")
                 return i
 
@@ -124,7 +139,6 @@ class VehicleCounter(object):
 
         # Count any uncounted vehicles that are past the divider
         for vehicle in self.vehicles:
-            print("--",vehicle.last_position)
             if not vehicle.counted and abs(vehicle.last_position[1] - self.divider) < 20:
                 self.vehicle_count += 1
                 vehicle.counted = True

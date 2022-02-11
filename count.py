@@ -31,7 +31,7 @@ while(c.isOpened()):
 
     processed = f.copy()
     print(fgray.shape, processed.shape, car_counter.divider)
-    cv2.line(processed, (0, int(car_counter.divider)), (fgray.shape[1], int(car_counter.divider)), DIVIDER_COLOUR, 1)
+    cv2.line(processed, (0, int(car_counter.divider)), (fgray.shape[1], int(car_counter.divider)), DIVIDER_COLOUR, 1) # calcOpticalFlowFarneback ?
     th, dframe = cv2.threshold(diff, 100, 255, cv2.THRESH_BINARY)
     dilate_frame = cv2.dilate(dframe, None, iterations=10)
 
@@ -47,7 +47,7 @@ while(c.isOpened()):
         (x, y, w, h) = cv2.boundingRect(contour)
 
         centroid = ((x+w//2, y+h//2))
-        matches.append([(x, y, w, h),centroid])
+        matches.append([(x, y, w, h), centroid])
 
         cv2.rectangle(processed, (x, y), (x + w - 1, y + h - 1), BOUNDING_BOX_COLOUR, 1)
         cv2.circle(processed, centroid, 2, CENTROID_COLOUR, -1)
@@ -56,7 +56,7 @@ while(c.isOpened()):
 
     cv2.imshow('Detected Objects', processed)
     
-    k = cv2.waitKey(20)#20
+    k = cv2.waitKey(1)#20
 
     if k == 27:
         break
