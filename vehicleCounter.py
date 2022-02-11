@@ -71,7 +71,7 @@ class Vehicle(object):
             x =  round(last[0] + dist * math.cos(angle * CV_PI / 180.0))
             y =  round(last[1] + dist * math.sin(angle * CV_PI / 180.0))
             #print(x,y)
-            cv2.arrowedLine(output_image,last, (x, y), car_colour, 3)
+            cv2.arrowedLine(output_image,last, (x, y), car_colour, 2)
 
 
 

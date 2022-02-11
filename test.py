@@ -7,9 +7,11 @@ img = cv2.imread('avg1.png')
 #img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 rows, cols, ch = img.shape
   
+"""
 pts1 = np.float32([[321, 213], 
                    [348, 122],
                    [424, 221]])
+"""
 """
 [
 [425,  22], [567, 300]
@@ -18,19 +20,37 @@ pts1 = np.float32([[321, 213],
 [321, 212], [334, 167]
 ]
 """
-  
+"""
 pts2 = np.float32([[50, 50], 
                    [200, 50],
                    [50, 200]])
+"""
+
+pts1 = np.float32([
+    [316,63],
+    [453, 75],
+    [218, 201],
+    [529, 231]
+])
+
+pts2 = np.float32([
+    [0,0],
+    [200, 0],
+    [0, 800],
+    [200, 800]
+])
 
 
 np.float32([[10, 100],
             [200, 50], 
             [100, 250]])
   
-M = cv2.getAffineTransform(pts1, pts2)
-
-dst = cv2.warpAffine(img, M, (cols, rows))
+M = cv2.getPerspectiveTransform(pts1, pts2)
+#M = np.array([[3.44, 2.8236, -1016.5],
+#     [0.0452, 3.6178, -90.5]])
+print(M)
+print(cols, rows)
+dst = cv2.warpPerspective(img, M, (200, 800))
       
 cv2.imshow('image', img)
 cv2.imshow('dst', dst)
