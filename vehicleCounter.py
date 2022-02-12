@@ -33,6 +33,7 @@ class Vehicle(object):
         self.vector = (0,0) # distance, angle
         self.avg_vector = (0,0,0) # distance, angle, number
         self.state = State.INITIAL
+        self.speed = 0
         self.line = []
 
     @property
@@ -89,7 +90,8 @@ class Vehicle(object):
             #print(x,y)
             cv2.arrowedLine(output_image,last, (x, y), car_colour, 2)
             #cv2.putText(output_image, ("%02d" % self.vehicle_count), (142, 10), cv2.FONT_HERSHEY_PLAIN, 1, (127, 255, 255), 1)
-            cv2.putText(output_image, f"{self.avg_vector[0]:.1f}", (last[0] - 40, last[1] - 40), cv2.FONT_HERSHEY_PLAIN, 1, car_colour)
+            if self.state == State.SECONDLINE and self.speed:
+                cv2.putText(output_image, f"{self.speed:.1f}", (last[0] - 40, last[1] - 40), cv2.FONT_HERSHEY_PLAIN, 1, car_colour)
 
     def lineTrack(self, output_image):
         if len(self.positions) > 8:
@@ -112,6 +114,7 @@ class VehicleCounter(object):
         self.fps = fps
         self.secondline = secondline
         self.distance = None # in m
+        self.n_frame = 0
         print(fps)
 
         self.vehicles = []
@@ -183,7 +186,7 @@ class VehicleCounter(object):
         return None
 
 
-    def update_count(self, matches, output_image = None):
+    def update_count(self, matches, output_image = None, frame_number = None):
         print(f"Updating count using {len(matches)} matches...")
 
         # First update all the existing vehicles
@@ -207,11 +210,13 @@ class VehicleCounter(object):
                     print(vehicle.last_position[1] <= self.secondline, vehicle.positions[-2][1] > self.secondline)
                     if vehicle.last_position[1] <= self.secondline and vehicle.positions[-2][1] > self.secondline:
                         vehicle.state = State.FIRSTLINE
-                        vehicle.frame = 0
+                        if frame_number:
+                            vehicle.frame = frame_number
                         print(f"Vehicle {vehicle.id} passed the first line")
                     elif vehicle.last_position[1] <= self.divider and vehicle.positions[-2][1] > self.divider:
                         vehicle.counted = True
                         vehicle.state = State.SECONDLINE
+                        vehicle.speed = vehicle.avg_vector[0]
                         self.vehicle_count += 1
                         print(f"Vehicle {vehicle.id} passed the second line")
                         print(f"Counted vehicle #{vehicle.id} (total count={self.vehicle_count}).")
