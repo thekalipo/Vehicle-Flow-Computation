@@ -19,7 +19,7 @@ BOUNDING_BOX_COLOUR = (255, 0, 0)
 CENTROID_COLOUR = (0, 0, 255)
 
 frame_number = 1
-car_counter = vehicleCounter.VehicleCounter(f2.shape[:2], f2.shape[0] / 4)#, c.get(cv2.CAP_PROP_FPS))
+car_counter = vehicleCounter.VehicleCounter(f2.shape[:2], f2.shape[0] / 4, 3*f2.shape[0] / 4)#, c.get(cv2.CAP_PROP_FPS))
 
 
 while(c.isOpened()):
@@ -32,6 +32,7 @@ while(c.isOpened()):
     processed = f.copy()
     print(fgray.shape, processed.shape, car_counter.divider)
     cv2.line(processed, (0, int(car_counter.divider)), (fgray.shape[1], int(car_counter.divider)), DIVIDER_COLOUR, 1) # calcOpticalFlowFarneback ?
+    cv2.line(processed, (0, int(car_counter.secondline)), (fgray.shape[1], int(car_counter.secondline)), DIVIDER_COLOUR, 1) # calcOpticalFlowFarneback ?
     th, dframe = cv2.threshold(diff, 100, 255, cv2.THRESH_BINARY)
     dilate_frame = cv2.dilate(dframe, None, iterations=10)
 
@@ -56,7 +57,7 @@ while(c.isOpened()):
 
     cv2.imshow('Detected Objects', processed)
     
-    k = cv2.waitKey(1)#20
+    k = cv2.waitKey()#20
 
     if k == 27:
         break

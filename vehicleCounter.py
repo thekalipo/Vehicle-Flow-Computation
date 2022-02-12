@@ -3,6 +3,7 @@ from turtle import position
 import cv2
 import math
 import numpy as np
+from enum import Enum
 
 """
 TODO: distance between angles for valid angle
@@ -10,10 +11,17 @@ calculate speed : https://www.sciencedirect.com/science/article/pii/S03790738130
 
 """
 
+
+
 CAR_COLOURS = [ (0,0,255), (0,106,255), (0,216,255), (0,255,182), (0,255,76)
     , (144,255,0), (255,255,0), (255,148,0), (255,0,178), (220,0,255) ]
 
 CV_PI = 3.14
+
+class State(Enum):
+    INITIAL = 0
+    FIRSTLINE = 1
+    SECONDLINE = 2
 
 class Vehicle(object):
     def __init__(self, id, position):
@@ -24,7 +32,7 @@ class Vehicle(object):
         self.angles = []
         self.vector = (0,0) # distance, angle
         self.avg_vector = (0,0,0) # distance, angle, number
-
+        self.state = State.INITIAL
         self.line = []
 
     @property
@@ -96,12 +104,14 @@ class Vehicle(object):
 # ============================================================================
 
 class VehicleCounter(object):
-    def __init__(self, shape, divider, fps=30):
+    def __init__(self, shape, divider, secondline = None, distance = None, fps=30):
         print("vehicle_counter")
 
         self.height, self.width = shape
         self.divider = divider
         self.fps = fps
+        self.secondline = secondline
+        self.distance = None # in m
         print(fps)
 
         self.vehicles = []
@@ -192,11 +202,22 @@ class VehicleCounter(object):
 
         # Count any uncounted vehicles that are past the divider
         for vehicle in self.vehicles:
-            if not vehicle.counted and abs(vehicle.last_position[1] - self.divider) < 20:
-                self.vehicle_count += 1
-                vehicle.counted = True
+            if not vehicle.counted :#and abs(vehicle.last_position[1] - self.divider) < 20:
+                if len(vehicle.positions) > 1:
+                    print(vehicle.last_position[1] <= self.secondline, vehicle.positions[-2][1] > self.secondline)
+                    if vehicle.last_position[1] <= self.secondline and vehicle.positions[-2][1] > self.secondline:
+                        vehicle.state = State.FIRSTLINE
+                        vehicle.frame = 0
+                        print(f"Vehicle {vehicle.id} passed the first line")
+                    elif vehicle.last_position[1] <= self.divider and vehicle.positions[-2][1] > self.divider:
+                        vehicle.counted = True
+                        vehicle.state = State.SECONDLINE
+                        self.vehicle_count += 1
+                        print(f"Vehicle {vehicle.id} passed the second line")
+                        print(f"Counted vehicle #{vehicle.id} (total count={self.vehicle_count}).")
+
+
                 # vehicle.lineTrack(output_image)
-                print(f"Counted vehicle #{vehicle.id} (total count={self.vehicle_count}).")
 
         for i in range(len(self.vehicles)):
             if self.vehicles[i].counted:
