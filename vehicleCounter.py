@@ -1,4 +1,5 @@
 # inspired by https://stackoverflow.com/questions/36254452/counting-cars-opencv-python-issue/36274515#36274515
+from tkinter import OUTSIDE
 from turtle import position
 import cv2
 import math
@@ -19,7 +20,7 @@ CAR_COLOURS = [ (0,0,255), (0,106,255), (0,216,255), (0,255,182), (0,255,76)
 CV_PI = 3.14
 
 class State(Enum): # to check for cars in the two ways
-    INITIAL = 0
+    OUTSIDE = 0
     FIRSTLINE = 1
     SECONDLINE = 2
 
@@ -32,7 +33,7 @@ class Vehicle(object):
         self.angles = []
         self.vector = (0,0) # distance, angle
         self.avg_vector = (0,0,0) # distance, angle, number
-        self.state = State.INITIAL
+        self.state = State.OUTSIDE
         self.speed = 0
         self.line = []
 
@@ -90,7 +91,7 @@ class Vehicle(object):
             #print(x,y)
             cv2.arrowedLine(output_image,last, (x, y), car_colour, 2)
             #cv2.putText(output_image, ("%02d" % self.vehicle_count), (142, 10), cv2.FONT_HERSHEY_PLAIN, 1, (127, 255, 255), 1)
-            if self.state == State.SECONDLINE and self.speed:
+            if self.counted :
                 cv2.putText(output_image, f"{self.speed:.1f}", (last[0] - 40, last[1] - 40), cv2.FONT_HERSHEY_PLAIN, 1, car_colour)
 
     def lineTrack(self, output_image):
@@ -115,6 +116,7 @@ class VehicleCounter(object):
         self.secondline = secondline
         self.distance = distance # in m
         self.n_frame = 0
+        self.frame = -1
         print(fps)
 
         self.vehicles = []
@@ -207,8 +209,9 @@ class VehicleCounter(object):
         for vehicle in self.vehicles:
             if not vehicle.counted :#and abs(vehicle.last_position[1] - self.divider) < 20:
                 if len(vehicle.positions) > 1:
-                    print(vehicle.positions[-2:], self.secondline)
                     twoLast = vehicle.positions[-2:]
+                    """
+                    #print(vehicle.positions[-2:], self.secondline)
                     if doIntersect(twoLast, self.secondline):#vehicle.last_position[1] <= self.secondline and vehicle.positions[-2][1] > self.secondline:
                         vehicle.state = State.FIRSTLINE
                         if frame_number:
@@ -222,6 +225,24 @@ class VehicleCounter(object):
                         self.vehicle_count += 1
                         print(f"Vehicle {vehicle.id} passed the second line, avg speed {vehicle.speed} m/s")
                         print(f"Counted vehicle #{vehicle.id} (total count={self.vehicle_count}).")
+                    """
+
+                    state = 1 if doIntersect(twoLast, self.divider) else 2 if doIntersect(twoLast, self.secondline) else 0
+                    if state :
+                        if vehicle.state == State.OUTSIDE : # crossed a line
+                            print(f"Vehicle {vehicle.id} passed the first line{State}")
+                            vehicle.frame = frame_number
+                            vehicle.state = state
+                        elif vehicle.state != state: # crossed a different line
+                            vehicle.counted = True
+                            time = (frame_number - vehicle.frame) / self.fps # seconds
+                            vehicle.speed = self.distance / time * 3.6 # m/s to km/h
+                            self.vehicle_count += 1
+                            print(f"Vehicle {vehicle.id} passed the second line, avg speed {vehicle.speed} km/h")
+                            print(f"Counted vehicle #{vehicle.id} (total count={self.vehicle_count}).")
+                        else: # crossed the same line : went back, most likelly not normal ^^
+                            vehicle.state = State.OUTSIDE
+
 
 
                 # vehicle.lineTrack(output_image)

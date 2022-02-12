@@ -25,7 +25,7 @@ frame_number = 0
 line1 = [[316,63], [453, 75]]
 line2 = [[218, 201], [529, 231]]
 distance = 27.43 # 10 feet, and the empty spaces in-between measure 30 feet, in our case must be in metters, so 40+40+10 => 27.43m
-car_counter = vehicleCounter.VehicleCounter(f2.shape[:2], line1, line2, 24.3, c.get(cv2.CAP_PROP_FPS)) 
+car_counter = vehicleCounter.VehicleCounter(f2.shape[:2], line2, line1, 24.3, c.get(cv2.CAP_PROP_FPS)) 
 
 
 while(c.isOpened()):
