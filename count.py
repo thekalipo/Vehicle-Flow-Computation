@@ -19,7 +19,13 @@ BOUNDING_BOX_COLOUR = (255, 0, 0)
 CENTROID_COLOUR = (0, 0, 255)
 
 frame_number = 0
-car_counter = vehicleCounter.VehicleCounter(f2.shape[:2], f2.shape[0] / 4, 3*f2.shape[0] / 4, 24.3)#, c.get(cv2.CAP_PROP_FPS))
+#line1 = [(0,int(f2.shape[0] / 4)), (f2.shape[1], int(f2.shape[0] / 4))]
+#line2 = [(0, int(3*f2.shape[0] / 4)), (f2.shape[1], int(3*f2.shape[0] / 4))]
+
+line1 = [[316,63], [453, 75]]
+line2 = [[218, 201], [529, 231]]
+distance = 27.43 # 10 feet, and the empty spaces in-between measure 30 feet, in our case must be in metters, so 40+40+10 => 27.43m
+car_counter = vehicleCounter.VehicleCounter(f2.shape[:2], line1, line2, 24.3, c.get(cv2.CAP_PROP_FPS)) 
 
 
 while(c.isOpened()):
@@ -31,8 +37,8 @@ while(c.isOpened()):
 
     processed = f.copy()
     print(fgray.shape, processed.shape, car_counter.divider)
-    cv2.line(processed, (0, int(car_counter.divider)), (fgray.shape[1], int(car_counter.divider)), DIVIDER_COLOUR, 1) # calcOpticalFlowFarneback ?
-    cv2.line(processed, (0, int(car_counter.secondline)), (fgray.shape[1], int(car_counter.secondline)), DIVIDER_COLOUR, 1) # calcOpticalFlowFarneback ?
+    cv2.line(processed, car_counter.divider[0], car_counter.divider[1], DIVIDER_COLOUR, 1) # calcOpticalFlowFarneback ?
+    cv2.line(processed, car_counter.secondline[0], car_counter.secondline[1], DIVIDER_COLOUR, 1) # calcOpticalFlowFarneback ?
     th, dframe = cv2.threshold(diff, 100, 255, cv2.THRESH_BINARY)
     dilate_frame = cv2.dilate(dframe, None, iterations=10)
 

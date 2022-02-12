@@ -4,7 +4,7 @@ import cv2
 import math
 import numpy as np
 from enum import Enum
-
+from Pointfunctions import doIntersect
 """
 TODO: distance between angles for valid angle
 calculate speed : https://www.sciencedirect.com/science/article/pii/S0379073813005112
@@ -207,16 +207,17 @@ class VehicleCounter(object):
         for vehicle in self.vehicles:
             if not vehicle.counted :#and abs(vehicle.last_position[1] - self.divider) < 20:
                 if len(vehicle.positions) > 1:
-                    print(vehicle.last_position[1] <= self.secondline, vehicle.positions[-2][1] > self.secondline)
-                    if vehicle.last_position[1] <= self.secondline and vehicle.positions[-2][1] > self.secondline:
+                    print(vehicle.positions[-2:], self.secondline)
+                    twoLast = vehicle.positions[-2:]
+                    if doIntersect(twoLast, self.secondline):#vehicle.last_position[1] <= self.secondline and vehicle.positions[-2][1] > self.secondline:
                         vehicle.state = State.FIRSTLINE
                         if frame_number:
                             vehicle.frame = frame_number
                         print(f"Vehicle {vehicle.id} passed the first line")
-                    elif vehicle.last_position[1] <= self.divider and vehicle.positions[-2][1] > self.divider:
+                    elif doIntersect(twoLast, self.divider):#vehicle.last_position[1] <= self.divider and vehicle.positions[-2][1] > self.divider:
                         vehicle.counted = True
                         vehicle.state = State.SECONDLINE
-                        time = (frame_number - vehicle.frame) / self.fps
+                        time = (frame_number - vehicle.frame) / self.fps # seconds
                         vehicle.speed = self.distance / time * 3.6 # m/s to km/h
                         self.vehicle_count += 1
                         print(f"Vehicle {vehicle.id} passed the second line, avg speed {vehicle.speed} m/s")
