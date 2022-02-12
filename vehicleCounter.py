@@ -18,7 +18,7 @@ CAR_COLOURS = [ (0,0,255), (0,106,255), (0,216,255), (0,255,182), (0,255,76)
 
 CV_PI = 3.14
 
-class State(Enum):
+class State(Enum): # to check for cars in the two ways
     INITIAL = 0
     FIRSTLINE = 1
     SECONDLINE = 2
@@ -113,7 +113,7 @@ class VehicleCounter(object):
         self.divider = divider
         self.fps = fps
         self.secondline = secondline
-        self.distance = None # in m
+        self.distance = distance # in m
         self.n_frame = 0
         print(fps)
 
@@ -216,9 +216,10 @@ class VehicleCounter(object):
                     elif vehicle.last_position[1] <= self.divider and vehicle.positions[-2][1] > self.divider:
                         vehicle.counted = True
                         vehicle.state = State.SECONDLINE
-                        vehicle.speed = vehicle.avg_vector[0]
+                        time = (frame_number - vehicle.frame) / self.fps
+                        vehicle.speed = self.distance / time * 3.6 # m/s to km/h
                         self.vehicle_count += 1
-                        print(f"Vehicle {vehicle.id} passed the second line")
+                        print(f"Vehicle {vehicle.id} passed the second line, avg speed {vehicle.speed} m/s")
                         print(f"Counted vehicle #{vehicle.id} (total count={self.vehicle_count}).")
 
 
