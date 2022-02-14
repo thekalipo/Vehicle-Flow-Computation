@@ -1,26 +1,21 @@
-from classes.classes import Tracker
+from classes.classes import Tracker, State, Vehicle
 from classes.sort import Sort
 import numpy as np
 import cv2
-from enum import Enum
 from Pointfunctions import doIntersect, line, intersection, angle
 import math
+import json
 
 CAR_COLOURS = [ (0,0,255), (0,106,255), (0,216,255), (0,255,182), (0,255,76)
     , (144,255,0), (255,255,0), (255,148,0), (255,0,178), (220,0,255) ]
 
 CV_PI = 3.14
 
-class State(Enum): # to check for cars in the two ways
-    OUTSIDE = 0
-    FIRSTLINE = 1
-    SECONDLINE = 2
-
 class sortTracker(Tracker):
     DIVIDER_COLOUR = (255, 255, 0)
     BOUNDING_BOX_COLOUR = (255, 0, 0)
     CENTROID_COLOUR = (0, 0, 255)
-    def __init__(self, shape, divider, secondline = None, distance = None, fps=30):
+    def __init__(self, shape, divider, secondline, distance, fps=30):
         self.mot_tracker = Sort()
         self.vehicles = {}
 
@@ -29,18 +24,15 @@ class sortTracker(Tracker):
         self.fps = fps
         self.secondline = secondline
         self.distance = distance # in m
-        self.n_frame = 0
         self.frame = -1
         print(fps)
 
-        self.next_vehicle_id = 0
         self.vehicle_count = 0
-        self.max_unseen_frames = 7
 
         self.vPointAvg = []
     
 
-    def update_count(self, matches, output_image, frame_number):
+    def update_count(self, matches, output_image, frame_number, write=False):
         #print (matches)
         boxes = np.array([b for b,_ in matches])
         boxes = np.array([list(b[:2])+[b[2]+b[0], b[3]+b[1]] for b,_ in matches])
@@ -144,6 +136,9 @@ class sortTracker(Tracker):
                 , cv2.FONT_HERSHEY_PLAIN, 1, (127, 255, 255), 1)
         cv2.line(output_image, self.divider[0], self.divider[1], self.DIVIDER_COLOUR, 1) # calcOpticalFlowFarneback ?
         cv2.line(output_image, self.secondline[0], self.secondline[1], self.DIVIDER_COLOUR, 1)
+        if write:
+            with open(f"log{frame_number//self.fps}.txt", "w") as l:
+                json.dump({frame_number:[{"id":str(i), "avgSpeed":str(self.vehicles[i].speed)} for i in self.vehicles if self.vehicles[i].counted]}, l)
         
 
 
