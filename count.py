@@ -46,9 +46,17 @@ p2 = [320, 212]
 
 line1 = [[316,63], [453, 75]]
 line2 = [[218, 201], [529, 231]]
+
+#line1 = [[670,375],[718,475]]
+#line2 = [[968,500],[917,370]]
+
+#line1 = [[617, 1300], [2970, 1275]]
+#line2 = [[76, 1704], [3601, 1667]]
+
 distance = 27.43 # 10 feet, and the empty spaces in-between measure 30 feet, in our case must be in metters, so 40+40+10 => 27.43m
 car_counter = vehicleCounter.VehicleCounter(f2.shape[:2], line2, line1, 24.3, c.get(cv2.CAP_PROP_FPS), point1 = p1, point2 = p2) 
 
+#cv2.namedWindow("Detected Objects", cv2.WINDOW_NORMAL) 
 
 while(c.isOpened()):
     frame_number += 1
@@ -100,7 +108,7 @@ while(c.isOpened()):
 
     cv2.imshow('Detected Objects', processed)
     
-    k = cv2.waitKey()#20
+    k = cv2.waitKey(20)#20
 
     if k == 27:
         break
