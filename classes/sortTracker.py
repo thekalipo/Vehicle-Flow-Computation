@@ -37,6 +37,7 @@ class sortTracker(Tracker):
         self.vehicle_count = 0
         self.max_unseen_frames = 7
 
+        self.vPointAvgs = []
         self.vPointAvg = []
     
 
@@ -116,9 +117,10 @@ class sortTracker(Tracker):
                             p2 = (round(p2[0]), round(p2[1]))
 
                             if len(vehicle.distanceMarkers) > 5: #take 3 before to have a better estimate
+                                print('ENTERING CROSS RATIO ')
                                 time = (frame_number - vehicle.distanceMarkers[-5][1]) / self.fps # seconds
                                 speed = abs(ac - vehicle.distanceMarkers[-5][0]) / time * 3.6 # m/s to km/h
-                                #print("Vehicle {vehicle.id} CR Speed: ",speed)
+                                print("Vehicle {vehicle.id} CR Speed: ",speed)
                                 cv2.putText(output_image, f"CR speed : {speed:.1f}", (vehicle.last_position[0] + 20, vehicle.last_position[1]), cv2.FONT_HERSHEY_PLAIN, 1, vehicle.car_colour)
                             vehicle.distanceMarkers.append([ac, frame_number])
                             cv2.circle(output_image, p1, 2, (150,150,150), -1)
@@ -127,18 +129,43 @@ class sortTracker(Tracker):
                 else :
                     print("angle refused:", an)
 
-        lasti = -1
-        for i in self.vehicles:
-            if self.vehicles[i].counted:
+        # lasti = -1
+        # for i in self.vehicles:
+        #     if self.vehicles[i].counted:
+        #         self.vehicles[i].lineTrack(output_image)
+        #         if i != -1:
+        #             try:
+        #                 v = np.cross(self.vehicles[lasti].line[-1], self.vehicles[i].line[-1])
+        #                 v = v/v[2]
+        #             except:
+        #                 continue
+        #             if not np.isnan(v[0]):
+        #                 self.vPointAvg = v
+        #         lasti = i
+        
+        for i in range(len(self.vehicles)):
+            try:
                 self.vehicles[i].lineTrack(output_image)
-                if i != -1:
-                    try:
-                        v = np.cross(self.vehicles[lasti].line[-1], self.vehicles[i].line[-1])
-                        v = v/v[2]
-                    except:
-                        continue
-                    self.vPointAvg = v
-                lasti = i
+            except:
+                continue
+            if i > 0:
+                try:
+                    v = np.cross(self.vehicles[i-1].line[-1], self.vehicles[i].line[-1])
+                    v = v/v[2]
+                except:
+                    continue
+                if not np.isnan(v[0]):
+                    self.vPointAvgs.append(v)
+                # self.vPointAvg = self.vPointAvgs[-1]
+                # print('VANISHING POINT: ', self.vPointAvg)
+                # cv2.circle(output_image, (int(self.vPointAvg[0]), int(self.vPointAvg[1])), 10, (255,255,0), -1)
+
+        if len(self.vPointAvgs) > 2:
+            self.vPointAvg = self.vPointAvgs[-2]
+            print('VANISHING POINT: ', self.vPointAvg)
+        elif len(self.vPointAvgs) == 1:
+            self.vPointAvg = self.vPointAvgs[-1]
+            print('VANISHING POINT: ', self.vPointAvg)
         
         cv2.putText(output_image, (f"{self.vehicle_count:.2f}"), (142, 10)
                 , cv2.FONT_HERSHEY_PLAIN, 1, (127, 255, 255), 1)
