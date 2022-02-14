@@ -241,7 +241,9 @@ class VehicleCounter(Tracker):
                             if self.CR:
                                 vehicle.distance = np.sqrt((vehicle.last_position[0] - vehicle.positions[-2][0])**2 + (vehicle.last_position[1] - vehicle.positions[-2][1])**2) * (-self.CR) * self.distance
                                 # vehicle.distance = np.sqrt((vehicle.real_positions[-2][1] - vehicle.real_positions[-1][1])**2 + (vehicle.real_positions[-2][0] - vehicle.real_positions[-1][0])**2) * (-self.CR) * self.distance
-                            vehicle.speed = vehicle.distance / time * 3.6 # m/s to km/h
+                                vehicle.speed = vehicle.distance / time * 3.6 # m/s to km/h
+                            else :
+                                vehicle.speed = self.distance / time * 3.6 # m/s to km/h
                             self.vehicle_count += 1
                             print(f"Vehicle {vehicle.id} passed the second line, avg speed {vehicle.speed} km/h")
                             print(f"Counted vehicle #{vehicle.id} (total count={self.vehicle_count}).")
