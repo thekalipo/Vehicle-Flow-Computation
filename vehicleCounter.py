@@ -6,6 +6,8 @@ import math
 import numpy as np
 from enum import Enum
 from Pointfunctions import doIntersect
+from classes.classes import Tracker
+
 """
 TODO: distance between angles for valid angle
 calculate speed : https://www.sciencedirect.com/science/article/pii/S0379073813005112
@@ -111,7 +113,10 @@ class Vehicle(object):
 
 # ============================================================================
 
-class VehicleCounter(object):
+class VehicleCounter(Tracker):
+    DIVIDER_COLOUR = (255, 255, 0)
+    BOUNDING_BOX_COLOUR = (255, 0, 0)
+    CENTROID_COLOUR = (0, 0, 255)
     def __init__(self, shape, divider, secondline = None, distance = None, fps=30, point1 = [], point2 = []):
         print("vehicle_counter")
 
@@ -130,7 +135,7 @@ class VehicleCounter(object):
         self.max_unseen_frames = 7
 
         self.vPoints = []
-        self.vPoint = 0
+        self.vPoint = [0,0]
         self.vPointAvg = 0
 
         self.point1 = point1
@@ -199,12 +204,17 @@ class VehicleCounter(object):
 
 
     def update_count(self, matches, output_image = None, frame_number = None):
+        cv2.line(output_image, self.divider[0], self.divider[1], self.DIVIDER_COLOUR, 1) # calcOpticalFlowFarneback ?
+        cv2.line(output_image, self.secondline[0], self.secondline[1], self.DIVIDER_COLOUR, 1)
         print(f"Updating count using {len(matches)} matches...")
 
         # First update all the existing vehicles
         for vehicle in self.vehicles:
             i = self.update_vehicle(vehicle, matches)
             if i is not None:
+                print(matches[i])
+                # cv2.rectangle(output_image, (x, y), (x + w - 1, y + h - 1), BOUNDING_BOX_COLOUR, 1)
+                # cv2.circle(output_image, centroid, 2, CENTROID_COLOUR, -1)
                 del matches[i]
 
         # Add new vehicles based on the remaining matches
@@ -261,12 +271,12 @@ class VehicleCounter(object):
             bx = self.point2[0]
             cx = self.point1[0]
             dx = self.vPointAvg[0]
-            # dx = self.vPoint[0]
+            #dx = self.vPoint[0]
             
             by = self.point2[1]
             cy = self.point1[1]
             dy = self.vPointAvg[1]
-            # dy = self.vPoint[1]
+            #dy = self.vPoint[1]
             
             b = np.sqrt(bx**2 + by**2)
             c = np.sqrt(cx**2 + cy**2)
