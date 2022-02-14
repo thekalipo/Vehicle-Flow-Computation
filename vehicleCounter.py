@@ -270,13 +270,13 @@ class VehicleCounter(Tracker):
         if self.vehicle_count > 2:
             bx = self.point2[0]
             cx = self.point1[0]
-            dx = self.vPointAvg[0]
-            #dx = self.vPoint[0]
+            #dx = self.vPointAvg[0]
+            dx = self.vPoint[0]
             
             by = self.point2[1]
             cy = self.point1[1]
-            dy = self.vPointAvg[1]
-            #dy = self.vPoint[1]
+            #dy = self.vPointAvg[1]
+            dy = self.vPoint[1]
             
             b = np.sqrt(bx**2 + by**2)
             c = np.sqrt(cx**2 + cy**2)
