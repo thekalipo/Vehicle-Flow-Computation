@@ -5,7 +5,7 @@ import cv2
 import math
 import numpy as np
 from enum import Enum
-from Pointfunctions import doIntersect
+from Pointfunctions import doIntersect, line, intersection, angle
 from classes.classes import Tracker
 
 """
@@ -33,10 +33,12 @@ class Vehicle(object):
         self.frames_since_seen = 0
         self.counted = False
         self.angles = []
+        self.direction = []
         self.vector = (0,0) # distance, angle
         self.avg_vector = (0,0,0) # distance, angle, number
         self.state = State.OUTSIDE
         self.speed = 0
+        self.distanceMarkers = [] 
         self.line = []
 
         self.distance = 0
@@ -95,11 +97,12 @@ class Vehicle(object):
             angle = self.circ_mean(self.angles) #self.avg_vector[1]
             x =  round(last[0] + dist * math.cos(angle * CV_PI / 180.0))
             y =  round(last[1] + dist * math.sin(angle * CV_PI / 180.0))
+            self.direction = [last, (x,y)]
             #print(x,y)
             cv2.arrowedLine(output_image,last, (x, y), self.car_colour, 2)
             #cv2.putText(output_image, ("%02d" % self.vehicle_count), (142, 10), cv2.FONT_HERSHEY_PLAIN, 1, (127, 255, 255), 1)
             if self.counted :
-                cv2.putText(output_image, f"{self.speed:.1f}", (last[0] - 40, last[1] - 40), cv2.FONT_HERSHEY_PLAIN, 1, self.car_colour)
+                cv2.putText(output_image, f"{self.speed:.1f}", (last[0] - 10, last[1] - 10), cv2.FONT_HERSHEY_PLAIN, 1, self.car_colour)
 
     def lineTrack(self, output_image):
         if len(self.positions) > 8:
@@ -134,7 +137,7 @@ class VehicleCounter(Tracker):
         self.vehicle_count = 0
         self.max_unseen_frames = 7
 
-        self.vPointAvg = 0
+        self.vPointAvg = []
 
         self.point1 = point1
         self.point2 = point2
@@ -180,6 +183,10 @@ class VehicleCounter(Tracker):
         distance, angle = a
         threshold_distance = max(20., -0.008 * angle**2 + 0.4 * angle + 25.0)
         return (distance <= threshold_distance)
+    
+    @staticmethod
+    def distancePoints(p1,p2):
+        return ((p1[0]-p2[0])**2+(p1[1]-p2[1])**2)**(-1/2)
 
 
     def update_vehicle(self, vehicle, matches):
@@ -238,18 +245,52 @@ class VehicleCounter(Tracker):
                         elif vehicle.state != state: # crossed a different line
                             vehicle.counted = True
                             time = (frame_number - vehicle.frame) / self.fps # seconds
-                            if False and self.CR:
-                                vehicle.distance = np.sqrt((vehicle.last_position[0] - vehicle.positions[-2][0])**2 + (vehicle.last_position[1] - vehicle.positions[-2][1])**2) * (-self.CR) * self.distance
-                                # vehicle.distance = np.sqrt((vehicle.real_positions[-2][1] - vehicle.real_positions[-1][1])**2 + (vehicle.real_positions[-2][0] - vehicle.real_positions[-1][0])**2) * (-self.CR) * self.distance
-                                vehicle.speed = vehicle.distance / time * 3.6 # m/s to km/h
-                            else :
-                                vehicle.speed = self.distance / time * 3.6 # m/s to km/h
+                            vehicle.speed = self.distance / time * 3.6 # m/s to km/h
+                            
                             self.vehicle_count += 1
                             print(f"Vehicle {vehicle.id} passed the second line, avg speed {vehicle.speed} km/h")
                             print(f"Counted vehicle #{vehicle.id} (total count={self.vehicle_count}).")
                         else: # crossed the same line : went back, most likelly not normal ^^
                             vehicle.state = State.OUTSIDE
+            if len(vehicle.direction) != 0 and len(self.vPointAvg) != 0 and not vehicle.counted:
+                imgPointInf = self.vPointAvg[:2]
+                an = angle([vehicle.last_position, imgPointInf], vehicle.direction)
+                if abs(an) < 3: # angle between line from position to point at infinity and direction vector
+                    l = line(vehicle.last_position, imgPointInf)
+                    #l2 = line(vehicle.last_position, vehicle.direction)
+                    p1 = intersection(line(self.divider[0], self.divider[1]), l)
+                    p2 = intersection(line(self.secondline[0], self.secondline[1]), l)
 
+                    # if the points are on the segments
+                    if (self.divider[0][0] <= p1[0] <= self.divider[1][0] and self.divider[0][1] <= p1[1] <= self.divider[1][1] and # point 1 is on the divider
+                        self.secondline[0][0] <= p2[0] <= self.secondline[1][0] and self.secondline[0][1] <= p2[1] <= self.secondline[1][1]): # point2 is on the second line
+
+                        # colinear point a(car), b(marker1), c(marker2), d(vanishing point)
+                        # from CR(a,b,c,d), d point at infinity (https://en.wikipedia.org/wiki/Cross-ratio#Definition)
+                        # acp stands for A'B'
+                        # so ac = acp*bdp*bc/(bcp*adp)
+                        acp = math.dist(vehicle.last_position, p2)
+                        bdp = math.dist(p1, imgPointInf)
+                        bcp = math.dist(p1, p2)
+                        adp = math.dist(vehicle.last_position, imgPointInf)
+                        bc = self.distance
+                        if bcp != 0 and adp !=0: 
+                            ac = acp*bdp*bc/(bcp*adp)
+                            
+                            p1 = (round(p1[0]), round(p1[1]))
+                            p2 = (round(p2[0]), round(p2[1]))
+
+                            if len(vehicle.distanceMarkers) > 5: #take 3 before to have a better estimate
+                                time = (frame_number - vehicle.distanceMarkers[-5][1]) / self.fps # seconds
+                                speed = abs(ac - vehicle.distanceMarkers[-5][0]) / time * 3.6 # m/s to km/h
+                                print("Vehicle {vehicle.id} CR Speed: ",speed)
+                                cv2.putText(output_image, f"CR speed : {speed:.1f}", (vehicle.last_position[0] + 20, vehicle.last_position[1]), cv2.FONT_HERSHEY_PLAIN, 1, vehicle.car_colour)
+                            vehicle.distanceMarkers.append([ac, frame_number])
+                            cv2.circle(output_image, p1, 2, (150,150,150), -1)
+                            cv2.circle(output_image, p2, 2, (150,150,150), -1)
+                            print("------ ac", ac, "angle", an,"Points 1:", p1, "2:", p2,self.vPointAvg)
+                else :
+                    print("angle refused:", an)
 
 
                 # vehicle.lineTrack(output_image)
@@ -264,45 +305,7 @@ class VehicleCounter(Tracker):
                     except:
                         continue
                     self.vPointAvg = v
-        print('Vanishing point with cars: ', self.vPointAvg)
-
-        # Calculate cross ratio CR
-        if self.vehicle_count > 2:
-            bx = self.point2[0]
-            cx = self.point1[0]
-            dx = self.vPointAvg[0]
-            
-            by = self.point2[1]
-            cy = self.point1[1]
-            dy = self.vPointAvg[1]
-            
-            b = np.sqrt(bx**2 + by**2)
-            c = np.sqrt(cx**2 + cy**2)
-            d = np.sqrt(dx**2 + dy**2)
-            
-            cb = np.sqrt((cx-bx)**2 + (cy-by)**2)
-            db = np.sqrt((dx-bx)**2 + (dy-by)**2)
-            
-            for v in self.vehicles:
-                ax = v.last_position[0]
-                ay = v.last_position[1]
-                a = np.sqrt(ax**2 + ay**2)
-
-                ca = np.sqrt((cx-ax)**2 + (cy-ay)**2)
-                da = np.sqrt((dx-ax)**2 + (dy-ay)**2)
-
-                self.CR = (ca/cb) / (da/db)
-                # self.CR = ((c-a)/(c-b)) / ((d-a)/(d-b))
-                                                
-                v.x_real = ((cx*dx*self.CR) - (bx*dx*self.CR) - (cx*dx) + (cx*bx)) / (-dx + bx + (cx*self.CR) - (bx*self.CR))
-                print('POINT Ax OF REAL COORDINATE FROM CAR: ', v.x_real)
-                v.y_real = ((cy*dy*self.CR) - (by*dy*self.CR) - (cy*dy) + (cy*by)) / (-dy + by + (cy*self.CR) - (by*self.CR))
-                print('POINT Ay OF REAL COORDINATE FROM CAR: ', v.y_real)
-                # cv2.circle(output_image, (int(v.x_real), int(v.y_real)), 2, v.car_colour, -1)
-                
-                v.real_positions.append((int(v.x_real), int(v.y_real)))
-                # v.real_positions.append((320, int(v.y_real)))
-        print('CROSS RATIO: ', self.CR)
+        #print('Vanishing point with cars: ', self.vPointAvg)
 
         # Optionally draw the vehicles on an image
         if output_image is not None:

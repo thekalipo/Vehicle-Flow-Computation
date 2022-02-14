@@ -1,3 +1,4 @@
+import math
 # https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
 # Given three collinear points p, q, r, the function checks if
 # point q lies on line segment 'pr'
@@ -68,3 +69,35 @@ def doIntersect(segment1, segment2): #p1,q1,p2,q2):
  
     # If none of the cases
     return False
+
+# https://stackoverflow.com/a/20679579
+def line(p1, p2):
+    A = (p1[1] - p2[1])
+    B = (p2[0] - p1[0])
+    C = (p1[0]*p2[1] - p2[0]*p1[1])
+    return A, B, -C
+
+def intersection(L1, L2): #calculate intersection between two lines (https://stackoverflow.com/a/20679579)
+    D  = L1[0] * L2[1] - L1[1] * L2[0]
+    Dx = L1[2] * L2[1] - L1[1] * L2[2]
+    Dy = L1[0] * L2[2] - L1[2] * L2[0]
+    if D != 0:
+        x = Dx / D
+        y = Dy / D
+        return x,y
+    else:
+        return False
+
+# angle between two slopes
+# https://stackoverflow.com/a/57503229
+def slope(l): # Line slope given two points:
+    div = l[1][0] - l[0][0]
+    if div == 0:
+        return l[1][1] - l[0][1]
+    return (l[1][1] - l[0][1]) / div
+
+def innerAngle(s1, s2): 
+    return math.degrees(math.atan((s2-s1)/(1+(s2*s1))))
+
+def angle(l1, l2): # lets be lazy, angle between the lines of two segments
+    return innerAngle(slope(l1),slope(l2))

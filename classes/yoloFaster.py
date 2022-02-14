@@ -17,3 +17,4 @@ class FasterYoloDetector(Detector):
         for box in boxes:
                 matches.append([box,(box[0]+box[2]//2, box[1]+box[3]//2)])
         return matches
+
