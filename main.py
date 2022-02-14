@@ -3,6 +3,7 @@ from cv2 import imshow
 import numpy as np
 from classes.frameSubDetector import FrameSubDetector
 from classes.noProcessor import noProcessor
+from classes.sortTracker import sortTracker
 from classes.yoloFaster import FasterYoloDetector
 
 import vehicleCounter
@@ -24,12 +25,13 @@ line1 = [[316,63], [453, 75]]
 line2 = [[218, 201], [529, 231]]
 
 
-distance = 27.43 # 10 feet, and the empty spaces in-between measure 30 feet, in our case must be in metters, so 40+40+10 => 27.43m
-tracker = vehicleCounter.VehicleCounter(f.shape[:2], line2, line1, 24.3, c.get(cv2.CAP_PROP_FPS), p1, p2) #Tracker
 processor = noProcessor() # processor
 detector = FrameSubDetector() # Detector
 #detector = FasterYoloDetector() # Detector
 
+distance = 27.43 # 10 feet, and the empty spaces in-between measure 30 feet, in our case must be in metters, so 40+40+10 => 27.43m
+tracker = sortTracker()
+#tracker = vehicleCounter.VehicleCounter(f.shape[:2], line2, line1, 24.3, c.get(cv2.CAP_PROP_FPS), p1, p2) #Tracker
 
 while(c.isOpened()):
     frame_number += 1
