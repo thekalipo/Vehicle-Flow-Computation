@@ -231,8 +231,8 @@ class VehicleCounter(object):
                             vehicle.counted = True
                             time = (frame_number - vehicle.frame) / self.fps # seconds
                             if self.CR:
-                                # vehicle.distance = np.sqrt((vehicle.last_position[0] - vehicle.positions[-2][0])**2 + (vehicle.last_position[1] - vehicle.positions[-2][1])**2) * (-self.CR) * self.distance
-                                vehicle.distance = np.sqrt((vehicle.real_positions[-2][1] - vehicle.real_positions[-1][1])**2 + (vehicle.real_positions[-2][0] - vehicle.real_positions[-1][0])**2) * (-self.CR) * self.distance
+                                vehicle.distance = np.sqrt((vehicle.last_position[0] - vehicle.positions[-2][0])**2 + (vehicle.last_position[1] - vehicle.positions[-2][1])**2) * (-self.CR) * self.distance
+                                # vehicle.distance = np.sqrt((vehicle.real_positions[-2][1] - vehicle.real_positions[-1][1])**2 + (vehicle.real_positions[-2][0] - vehicle.real_positions[-1][0])**2) * (-self.CR) * self.distance
                             vehicle.speed = vehicle.distance / time * 3.6 # m/s to km/h
                             self.vehicle_count += 1
                             print(f"Vehicle {vehicle.id} passed the second line, avg speed {vehicle.speed} km/h")
@@ -260,13 +260,13 @@ class VehicleCounter(object):
         if self.vehicle_count > 2:
             bx = self.point2[0]
             cx = self.point1[0]
-            # dx = self.vPointAvg[0]
-            dx = self.vPoint[0]
+            dx = self.vPointAvg[0]
+            # dx = self.vPoint[0]
             
             by = self.point2[1]
             cy = self.point1[1]
-            # dy = self.vPointAvg[1]
-            dy = self.vPoint[1]
+            dy = self.vPointAvg[1]
+            # dy = self.vPoint[1]
             
             b = np.sqrt(bx**2 + by**2)
             c = np.sqrt(cx**2 + cy**2)
