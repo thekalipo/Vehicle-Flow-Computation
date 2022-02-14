@@ -2,7 +2,7 @@ from classes.classes import Tracker, State, Vehicle
 from classes.sort import Sort
 import numpy as np
 import cv2
-from Pointfunctions import doIntersect, line, intersection, angle
+from classes.pointfunctions import doIntersect, line, intersection, angle
 import math
 import json
 
@@ -111,7 +111,7 @@ class sortTracker(Tracker):
                             if len(vehicle.distanceMarkers) > 5: #take 3 before to have a better estimate
                                 time = (frame_number - vehicle.distanceMarkers[-5][1]) / self.fps # seconds
                                 speed = abs(ac - vehicle.distanceMarkers[-5][0]) / time * 3.6 # m/s to km/h
-                                print("Vehicle {vehicle.id} CR Speed: ",speed)
+                                print(f"Vehicle {vehicle.id} CR Speed: ",speed)
                                 cv2.putText(output_image, f"CR speed : {speed:.1f}", (vehicle.last_position[0] + 20, vehicle.last_position[1]), cv2.FONT_HERSHEY_PLAIN, 1, vehicle.car_colour)
                             vehicle.distanceMarkers.append([ac, frame_number])
                             cv2.circle(output_image, p1, 2, (150,150,150), -1)
