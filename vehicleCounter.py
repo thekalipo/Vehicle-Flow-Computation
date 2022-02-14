@@ -134,8 +134,6 @@ class VehicleCounter(Tracker):
         self.vehicle_count = 0
         self.max_unseen_frames = 7
 
-        self.vPoints = []
-        self.vPoint = [0,0]
         self.vPointAvg = 0
 
         self.point1 = point1
@@ -271,12 +269,10 @@ class VehicleCounter(Tracker):
             bx = self.point2[0]
             cx = self.point1[0]
             dx = self.vPointAvg[0]
-            #dx = self.vPoint[0]
             
             by = self.point2[1]
             cy = self.point1[1]
             dy = self.vPointAvg[1]
-            #dy = self.vPoint[1]
             
             b = np.sqrt(bx**2 + by**2)
             c = np.sqrt(cx**2 + cy**2)
@@ -311,12 +307,6 @@ class VehicleCounter(Tracker):
             for vehicle in self.vehicles:
                 vehicle.draw(output_image)
             
-            if len(self.vPoints) > 0:
-                self.vPoint = self.vPoints[-1]
-                print('VANISNING POINT: ', self.vPoint)
-
-
-
             cv2.putText(output_image, (f"{self.vehicle_count:.2f}"), (142, 10)
                 , cv2.FONT_HERSHEY_PLAIN, 1, (127, 255, 255), 1)
 
