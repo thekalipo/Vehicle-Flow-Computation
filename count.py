@@ -14,9 +14,7 @@ count = 0
 
 vehicles = []
 
-DIVIDER_COLOUR = (255, 255, 0)
-BOUNDING_BOX_COLOUR = (255, 0, 0)
-CENTROID_COLOUR = (0, 0, 255)
+
 
 frame_number = 0
 #line1 = [(0,int(f2.shape[0] / 4)), (f2.shape[1], int(f2.shape[0] / 4))]

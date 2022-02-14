@@ -6,6 +6,8 @@ import math
 import numpy as np
 from enum import Enum
 from Pointfunctions import doIntersect
+from classes.classes import Tracker
+
 """
 TODO: distance between angles for valid angle
 calculate speed : https://www.sciencedirect.com/science/article/pii/S0379073813005112
@@ -106,7 +108,10 @@ class Vehicle(object):
 
 # ============================================================================
 
-class VehicleCounter(object):
+class VehicleCounter(Tracker):
+    DIVIDER_COLOUR = (255, 255, 0)
+    BOUNDING_BOX_COLOUR = (255, 0, 0)
+    CENTROID_COLOUR = (0, 0, 255)
     def __init__(self, shape, divider, secondline = None, distance = None, fps=30):
         print("vehicle_counter")
 
@@ -189,12 +194,17 @@ class VehicleCounter(object):
 
 
     def update_count(self, matches, output_image = None, frame_number = None):
+        cv2.line(output_image, self.divider[0], self.divider[1], self.DIVIDER_COLOUR, 1) # calcOpticalFlowFarneback ?
+        cv2.line(output_image, self.secondline[0], self.secondline[1], self.DIVIDER_COLOUR, 1)
         print(f"Updating count using {len(matches)} matches...")
 
         # First update all the existing vehicles
         for vehicle in self.vehicles:
             i = self.update_vehicle(vehicle, matches)
             if i is not None:
+                print(matches[i])
+                # cv2.rectangle(output_image, (x, y), (x + w - 1, y + h - 1), BOUNDING_BOX_COLOUR, 1)
+                # cv2.circle(output_image, centroid, 2, CENTROID_COLOUR, -1)
                 del matches[i]
 
         # Add new vehicles based on the remaining matches
