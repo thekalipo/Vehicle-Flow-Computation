@@ -117,7 +117,7 @@ class Vehicle(object):
         self.avg_vector = ((self.avg_vector[0] * self.avg_vector[2] + self.vector[0]) / (self.avg_vector[2] + 1), 
                           (self.avg_vector[1] * self.avg_vector[2] + self.vector[1]) / (self.avg_vector[2] + 1), 
                           self.avg_vector[2] + 1)
-        print(f"angle {self.avg_vector[2]}", self.vector, self.avg_vector)
+        #print(f"angle {self.avg_vector[2]}", self.vector, self.avg_vector)
 
     def draw(self, output_image):
         self.car_colour = CAR_COLOURS[self.id % len(CAR_COLOURS)]
