@@ -238,7 +238,7 @@ class VehicleCounter(Tracker):
                         elif vehicle.state != state: # crossed a different line
                             vehicle.counted = True
                             time = (frame_number - vehicle.frame) / self.fps # seconds
-                            if self.CR:
+                            if False and self.CR:
                                 vehicle.distance = np.sqrt((vehicle.last_position[0] - vehicle.positions[-2][0])**2 + (vehicle.last_position[1] - vehicle.positions[-2][1])**2) * (-self.CR) * self.distance
                                 # vehicle.distance = np.sqrt((vehicle.real_positions[-2][1] - vehicle.real_positions[-1][1])**2 + (vehicle.real_positions[-2][0] - vehicle.real_positions[-1][0])**2) * (-self.CR) * self.distance
                                 vehicle.speed = vehicle.distance / time * 3.6 # m/s to km/h
