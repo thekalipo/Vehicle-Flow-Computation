@@ -120,7 +120,7 @@ class VehicleCounter(Tracker):
     DIVIDER_COLOUR = (255, 255, 0)
     BOUNDING_BOX_COLOUR = (255, 0, 0)
     CENTROID_COLOUR = (0, 0, 255)
-    def __init__(self, shape, divider, secondline = None, distance = None, fps=30, point1 = [], point2 = []):
+    def __init__(self, shape, divider, secondline = None, distance = None, fps=30):
         print("vehicle_counter")
 
         self.height, self.width = shape
@@ -138,11 +138,6 @@ class VehicleCounter(Tracker):
         self.max_unseen_frames = 7
 
         self.vPointAvg = []
-
-        self.point1 = point1
-        self.point2 = point2
-
-        self.CR = 0
 
 
 
@@ -183,10 +178,6 @@ class VehicleCounter(Tracker):
         distance, angle = a
         threshold_distance = max(20., -0.008 * angle**2 + 0.4 * angle + 25.0)
         return (distance <= threshold_distance)
-    
-    @staticmethod
-    def distancePoints(p1,p2):
-        return ((p1[0]-p2[0])**2+(p1[1]-p2[1])**2)**(-1/2)
 
 
     def update_vehicle(self, vehicle, matches):
