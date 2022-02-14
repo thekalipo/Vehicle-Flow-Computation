@@ -5,9 +5,22 @@ import numpy as np
 import vehicleCounter
 
 c = cv2.VideoCapture("video.mp4")
+# c = cv2.VideoCapture("motorway.mov")
 
 
 _,f2 = c.read()
+
+# h2 = f2.shape[0]
+# w2 = f2.shape[1]
+
+# src2 = np.array([[350, 0], [435, 0], [w2, h2], [30, h2]], np.float32)
+# dst2 = np.array([[0, 0], [w2, 0], [w2, h2], [0, h2]], np.float32)
+
+
+# M2 = cv2.getPerspectiveTransform(src2, dst2)
+# warped = cv2.warpPerspective(f2, M2, (int(w2), int(h2)))
+
+# f2gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
 f2gray = cv2.cvtColor(f2, cv2.COLOR_BGR2GRAY)
 
 count = 0
@@ -20,6 +33,14 @@ frame_number = 0
 #line1 = [(0,int(f2.shape[0] / 4)), (f2.shape[1], int(f2.shape[0] / 4))]
 #line2 = [(0, int(3*f2.shape[0] / 4)), (f2.shape[1], int(3*f2.shape[0] / 4))]
 
+# line1 = [[617, 1300], [2970, 1275]]
+# line2 = [[76, 1704], [3601, 1667]]
+
+# line1 = [[80, 220], [555, 235]]
+# line2 = [[75, 330], [590, 340]]
+
+p1 = [361,68]
+p2 = [320, 212]
 
 line1 = [[316,63], [453, 75]]
 line2 = [[218, 201], [529, 231]]
@@ -31,15 +52,30 @@ line2 = [[218, 201], [529, 231]]
 #line2 = [[76, 1704], [3601, 1667]]
 
 distance = 27.43 # 10 feet, and the empty spaces in-between measure 30 feet, in our case must be in metters, so 40+40+10 => 27.43m
-car_counter = vehicleCounter.VehicleCounter(f2.shape[:2], line2, line1, 24.3, c.get(cv2.CAP_PROP_FPS)) 
+car_counter = vehicleCounter.VehicleCounter(f2.shape[:2], line2, line1, 24.3, c.get(cv2.CAP_PROP_FPS), point1 = p1, point2 = p2) 
 
 #cv2.namedWindow("Detected Objects", cv2.WINDOW_NORMAL) 
 
 while(c.isOpened()):
     frame_number += 1
     _,f = c.read()
-    fgray = cv2.cvtColor(f, cv2.COLOR_BGR2GRAY)
 
+    # h = f.shape[0]
+    # w = f.shape[1]
+    # 360, 640
+
+    # src = np.array([[350, 0], [435, 0], [w, h], [30, h]], np.float32)
+    # dst = np.array([[0, 0], [w, 0], [w, h], [0, h]], np.float32)
+
+    # M = cv2.getPerspectiveTransform(src, dst)
+    # warped = cv2.warpPerspective(f, M, (int(w), int(h)))
+    
+    # fgray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
+    
+    # processed = warped.copy()
+    
+    fgray = cv2.cvtColor(f, cv2.COLOR_BGR2GRAY)
+    
     diff = cv2.absdiff(fgray, f2gray)
 
     processed = f.copy()

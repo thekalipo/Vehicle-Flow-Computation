@@ -16,12 +16,15 @@ _,f = c.read()
 
 frame_number = 0
 
+p1 = [361,68]
+p2 = [320, 212]
+
 line1 = [[316,63], [453, 75]]
 line2 = [[218, 201], [529, 231]]
 
 
 distance = 27.43 # 10 feet, and the empty spaces in-between measure 30 feet, in our case must be in metters, so 40+40+10 => 27.43m
-tracker = vehicleCounter.VehicleCounter(f.shape[:2], line2, line1, 24.3, c.get(cv2.CAP_PROP_FPS)) #Tracker
+tracker = vehicleCounter.VehicleCounter(f.shape[:2], line2, line1, 24.3, c.get(cv2.CAP_PROP_FPS), p1, p2) #Tracker
 processor = noProcessor() # processor
 detector = FrameSubDetector() # Detector
 

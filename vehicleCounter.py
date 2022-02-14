@@ -39,6 +39,11 @@ class Vehicle(object):
         self.speed = 0
         self.line = []
 
+        self.distance = 0
+        self.real_positions = []
+
+        self.car_colour = (0,0,0)
+
     @property
     def last_position(self):
         return self.positions[-1]
@@ -78,11 +83,11 @@ class Vehicle(object):
         print(f"angle {self.avg_vector[2]}", self.vector, self.avg_vector)
 
     def draw(self, output_image):
-        car_colour = CAR_COLOURS[self.id % len(CAR_COLOURS)]
+        self.car_colour = CAR_COLOURS[self.id % len(CAR_COLOURS)]
         for point in self.positions:
-            cv2.circle(output_image, point, 2, car_colour, -1)
+            cv2.circle(output_image, point, 2, self.car_colour, -1)
             cv2.polylines(output_image, [np.int32(self.positions)]
-                , False, car_colour, 1)
+                , False, self.car_colour, 1)
         if len(self.positions) > 2:
             last = self.positions[-1]
             #dist = self.vector[0] * 4
@@ -91,10 +96,10 @@ class Vehicle(object):
             x =  round(last[0] + dist * math.cos(angle * CV_PI / 180.0))
             y =  round(last[1] + dist * math.sin(angle * CV_PI / 180.0))
             #print(x,y)
-            cv2.arrowedLine(output_image,last, (x, y), car_colour, 2)
+            cv2.arrowedLine(output_image,last, (x, y), self.car_colour, 2)
             #cv2.putText(output_image, ("%02d" % self.vehicle_count), (142, 10), cv2.FONT_HERSHEY_PLAIN, 1, (127, 255, 255), 1)
             if self.counted :
-                cv2.putText(output_image, f"{self.speed:.1f}", (last[0] - 40, last[1] - 40), cv2.FONT_HERSHEY_PLAIN, 1, car_colour)
+                cv2.putText(output_image, f"{self.speed:.1f}", (last[0] - 40, last[1] - 40), cv2.FONT_HERSHEY_PLAIN, 1, self.car_colour)
 
     def lineTrack(self, output_image):
         if len(self.positions) > 8:
@@ -112,7 +117,7 @@ class VehicleCounter(Tracker):
     DIVIDER_COLOUR = (255, 255, 0)
     BOUNDING_BOX_COLOUR = (255, 0, 0)
     CENTROID_COLOUR = (0, 0, 255)
-    def __init__(self, shape, divider, secondline = None, distance = None, fps=30):
+    def __init__(self, shape, divider, secondline = None, distance = None, fps=30, point1 = [], point2 = []):
         print("vehicle_counter")
 
         self.height, self.width = shape
@@ -130,8 +135,13 @@ class VehicleCounter(Tracker):
         self.max_unseen_frames = 7
 
         self.vPoints = []
-        self.vPoint = 0
+        self.vPoint = [0,0]
         self.vPointAvg = 0
+
+        self.point1 = point1
+        self.point2 = point2
+
+        self.CR = 0
 
 
 
@@ -230,7 +240,10 @@ class VehicleCounter(Tracker):
                         elif vehicle.state != state: # crossed a different line
                             vehicle.counted = True
                             time = (frame_number - vehicle.frame) / self.fps # seconds
-                            vehicle.speed = self.distance / time * 3.6 # m/s to km/h
+                            if self.CR:
+                                # vehicle.distance = np.sqrt((vehicle.last_position[0] - vehicle.positions[-2][0])**2 + (vehicle.last_position[1] - vehicle.positions[-2][1])**2) * (-self.CR) * self.distance
+                                vehicle.distance = np.sqrt((vehicle.real_positions[-2][1] - vehicle.real_positions[-1][1])**2 + (vehicle.real_positions[-2][0] - vehicle.real_positions[-1][0])**2) * (-self.CR) * self.distance
+                            vehicle.speed = vehicle.distance / time * 3.6 # m/s to km/h
                             self.vehicle_count += 1
                             print(f"Vehicle {vehicle.id} passed the second line, avg speed {vehicle.speed} km/h")
                             print(f"Counted vehicle #{vehicle.id} (total count={self.vehicle_count}).")
@@ -251,7 +264,47 @@ class VehicleCounter(Tracker):
                     except:
                         continue
                     self.vPointAvg = v
-        print(self.vPointAvg)
+        print('Vanishing point with cars: ', self.vPointAvg)
+
+        # Calculate cross ratio CR
+        if self.vehicle_count > 2:
+            bx = self.point2[0]
+            cx = self.point1[0]
+            dx = self.vPointAvg[0]
+            #dx = self.vPoint[0]
+            
+            by = self.point2[1]
+            cy = self.point1[1]
+            dy = self.vPointAvg[1]
+            #dy = self.vPoint[1]
+            
+            b = np.sqrt(bx**2 + by**2)
+            c = np.sqrt(cx**2 + cy**2)
+            d = np.sqrt(dx**2 + dy**2)
+            
+            cb = np.sqrt((cx-bx)**2 + (cy-by)**2)
+            db = np.sqrt((dx-bx)**2 + (dy-by)**2)
+            
+            for v in self.vehicles:
+                ax = v.last_position[0]
+                ay = v.last_position[1]
+                a = np.sqrt(ax**2 + ay**2)
+
+                ca = np.sqrt((cx-ax)**2 + (cy-ay)**2)
+                da = np.sqrt((dx-ax)**2 + (dy-ay)**2)
+
+                self.CR = (ca/cb) / (da/db)
+                # self.CR = ((c-a)/(c-b)) / ((d-a)/(d-b))
+                                                
+                v.x_real = ((cx*dx*self.CR) - (bx*dx*self.CR) - (cx*dx) + (cx*bx)) / (-dx + bx + (cx*self.CR) - (bx*self.CR))
+                print('POINT Ax OF REAL COORDINATE FROM CAR: ', v.x_real)
+                v.y_real = ((cy*dy*self.CR) - (by*dy*self.CR) - (cy*dy) + (cy*by)) / (-dy + by + (cy*self.CR) - (by*self.CR))
+                print('POINT Ay OF REAL COORDINATE FROM CAR: ', v.y_real)
+                # cv2.circle(output_image, (int(v.x_real), int(v.y_real)), 2, v.car_colour, -1)
+                
+                v.real_positions.append((int(v.x_real), int(v.y_real)))
+                # v.real_positions.append((320, int(v.y_real)))
+        print('CROSS RATIO: ', self.CR)
 
         # Optionally draw the vehicles on an image
         if output_image is not None:
