@@ -5,15 +5,8 @@ import cv2
 import math
 import numpy as np
 from enum import Enum
-from Pointfunctions import doIntersect, line, intersection, angle
-from classes.classes import Tracker
-
-"""
-TODO: distance between angles for valid angle
-calculate speed : https://www.sciencedirect.com/science/article/pii/S0379073813005112
-
-"""
-
+from classes.pointfunctions import doIntersect, line, intersection, angle
+from classes.classes import Tracker, Vehicle, State
 
 
 CAR_COLOURS = [ (0,0,255), (0,106,255), (0,216,255), (0,255,182), (0,255,76)
@@ -151,7 +144,7 @@ class VehicleCounter(Tracker):
             if len(vehicle.direction) != 0 and len(self.vPointAvg) != 0 and not vehicle.counted:
                 imgPointInf = self.vPointAvg[:2]
                 an = angle([vehicle.last_position, imgPointInf], vehicle.direction)
-                if abs(an) < 3: # angle between line from position to point at infinity and direction vector
+                if abs(an) < 6: # angle between line from position to point at infinity and direction vector
                     l = line(vehicle.last_position, imgPointInf)
                     #l2 = line(vehicle.last_position, vehicle.direction)
                     p1 = intersection(line(self.divider[0], self.divider[1]), l)
@@ -179,7 +172,7 @@ class VehicleCounter(Tracker):
                             if len(vehicle.distanceMarkers) > 5: #take 3 before to have a better estimate
                                 time = (frame_number - vehicle.distanceMarkers[-5][1]) / self.fps # seconds
                                 speed = abs(ac - vehicle.distanceMarkers[-5][0]) / time * 3.6 # m/s to km/h
-                                print("Vehicle {vehicle.id} CR Speed: ",speed)
+                                print(f"Vehicle {vehicle.id} CR Speed: {speed:.1f}")
                                 cv2.putText(output_image, f"CR speed : {speed:.1f}", (vehicle.last_position[0] + 20, vehicle.last_position[1]), cv2.FONT_HERSHEY_PLAIN, 1, vehicle.car_colour)
                             vehicle.distanceMarkers.append([ac, frame_number])
                             cv2.circle(output_image, p1, 2, (150,150,150), -1)
