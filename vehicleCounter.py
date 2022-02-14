@@ -210,22 +210,6 @@ class VehicleCounter(object):
             if not vehicle.counted :#and abs(vehicle.last_position[1] - self.divider) < 20:
                 if len(vehicle.positions) > 1:
                     twoLast = vehicle.positions[-2:]
-                    """
-                    #print(vehicle.positions[-2:], self.secondline)
-                    if doIntersect(twoLast, self.secondline):#vehicle.last_position[1] <= self.secondline and vehicle.positions[-2][1] > self.secondline:
-                        vehicle.state = State.FIRSTLINE
-                        if frame_number:
-                            vehicle.frame = frame_number
-                        print(f"Vehicle {vehicle.id} passed the first line")
-                    elif doIntersect(twoLast, self.divider):#vehicle.last_position[1] <= self.divider and vehicle.positions[-2][1] > self.divider:
-                        vehicle.counted = True
-                        vehicle.state = State.SECONDLINE
-                        time = (frame_number - vehicle.frame) / self.fps # seconds
-                        vehicle.speed = self.distance / time * 3.6 # m/s to km/h
-                        self.vehicle_count += 1
-                        print(f"Vehicle {vehicle.id} passed the second line, avg speed {vehicle.speed} m/s")
-                        print(f"Counted vehicle #{vehicle.id} (total count={self.vehicle_count}).")
-                    """
 
                     state = 1 if doIntersect(twoLast, self.divider) else 2 if doIntersect(twoLast, self.secondline) else 0
                     if state :
@@ -261,30 +245,9 @@ class VehicleCounter(object):
 
         # Optionally draw the vehicles on an image
         if output_image is not None:
-            lines = []
             for vehicle in self.vehicles:
                 vehicle.draw(output_image)
-                # vehicle.lineTrack()
-                # print(vehicle.line)
-
-                ##### working "hardcoded" #####
-                if vehicle.id == 2:
-                    a = [vehicle.first_position[0], vehicle.first_position[1], 1]
-                    b = [vehicle.last_position[0], vehicle.last_position[1], 1]
-                    lines.append(np.cross(a, b))
-                if vehicle.id == 8:
-                    c = [vehicle.first_position[0], vehicle.first_position[1], 1]
-                    d = [vehicle.last_position[0], vehicle.last_position[1], 1]
-                    lines.append(np.cross(c, d))
-                if len(lines) > 1:
-                    if lines[1][0]:
-                        v = np.cross(lines[0], lines[1])
-                        v = v/v[2]
-                        self.vPoints.append(v)
-                    # if not np.isnan(v[0]):
-                        cv2.circle(output_image, (int(v[0]), int(v[1])), 10, (0, 0, 255), -1)
-                ##### working "hardcoded" #####
-                
+            
             if len(self.vPoints) > 0:
                 self.vPoint = self.vPoints[-1]
                 print('VANISNING POINT: ', self.vPoint)
