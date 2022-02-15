@@ -23,13 +23,6 @@ if video == '1':
     line2 = [[76, 1304], [3601, 1267]] #[[76, 1704], [3601, 1667]]
     detector = FrameSubDetector() # Detector
 elif video == '2':
-    # 1280, 720
-    video_name = "live.mov"
-    line1 = [[400,360], [750, 360]]
-    line2 = [[300, 450], [900, 450]]
-    detector = FrameSubDetector() # Detector
-    distance = 10
-elif video == '3':
     # 1920, 1080
     video_name = "443.mp4"
     line1 = [[480,520], [900, 550]]
