@@ -100,14 +100,6 @@ Finally the speed is multiplied by 3.6 on order to get km/h.
 
 ----
 
-## Dependencies
-
-To install the required dependencies run:
-
-```
-$ pip install -r requirements.txt
-```
-
 ## How to use
 
 To run the program run:
