@@ -98,6 +98,8 @@ The average speed is also calculated using the time the vehicle puts to go from 
 
 Finally the speed is multiplied by 3.6 on order to get km/h.
 
+Log files are created every 15 secs containing the average speed between the two lines of the counted vehicles in the last 15 secs.
+
 ----
 
 ## How to use
