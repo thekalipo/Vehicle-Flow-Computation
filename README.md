@@ -64,7 +64,7 @@ For the object detection of this project we selected two different algorithms.
 
 First we use a frame by frame differentiation and apply a threshold to obtain sharper results. Then we dilate the image in order to avoid holes on the moving objects. Finally we get contours on the moving objects.
 
-The second one is the YOLO (You Only Look Once) algorithm which is a realtime object detection algorithm that uses a singl neural network on the image frame, it divides it into regions and predicts bounding boxes and probabilities for each region, which are weighted by their probabilities. 
+The second one is the YOLO (You Only Look Once) algorithm which is a realtime object detection algorithm that uses a single neural network on the image frame, it divides it into regions and predicts bounding boxes and probabilities for each region, which are weighted by their probabilities. 
 
 ### **Object tracking**
 
@@ -112,12 +112,14 @@ To run the program run:
 
 ```
 $ cd path/to/program
-$ python main.py
+$ python main.py <number of video to use>
 ```
+
+The number of video goes from 0 to 2 in our specific case, but you can add new videos in the first condition of `main.py`. For new videos you'll need to specify the name of the video, whose file needs to be on the same folder, and select the positions of two lines and the distance between them.
 
 ## Modularity
 
-The program is structured in a way that is easy to add or modify any part of it. If you'd like to use a different detector or a different tracker model, you can simply choose a different class or, if new, add your new class on the `classes.py` file and make use of the modularity.
+The program is structured in a way that is easy to add or modify any part of it. If you'd like to use a different detector or a different tracker model, you can simply extend one of the classes of the `classes.py` file and make use of the modularity.
 All classes are independent, a tracker can work con different detectors and vice-versa.
 
 ----
