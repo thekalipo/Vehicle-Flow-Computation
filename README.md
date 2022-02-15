@@ -68,7 +68,7 @@ The second one is the YOLO (You Only Look Once) algorithm which is a realtime ob
 
 ### **Object tracking**
 
-Once we detected objects we can track them. We use the SORT (Simple Online Realtime Tracking) algorithm which is a multi-object tracking system. This algorithm extracts features of the detected objects by using a CNN, it then uses a Kalman filter to predict the location, calculates the features similarities and the location distance between different frames. Computes the intersection-over-union (IOU) between the detection and the predicted candidate, and finally it updates the motion state by the Kalman filter and the motion prediction model.
+Once we detected objects we can track them. We use the SORT (Simple Online Realtime Tracking) algorithm which is a multi-object tracking system. This algorithm extracts features of the detected objects, it then uses a Kalman filter to predict the location, calculates the features similarities and the location distance between different frames. Computes the intersection-over-union (IOU) between the detection and the predicted candidate, and finally it updates the motion state by the Kalman filter and the motion prediction model.
 
 ### **Vanishing point calculation**
 
@@ -94,6 +94,8 @@ We know that: speed = distance / time
 
 Since we already obtained the distance of the vehicles, we need to compute the time, which is obtained by using the frames per second (fps) of the video. For each vehicle at a specific instant we obtain the diference of frames between the current one and the frame used to calculate the distance and divide it by the fps of the video.
 
+The average speed is also calculated using the time the vehicle puts to go from one marker to another.
+
 Finally the speed is multiplied by 3.6 on order to get km/h.
 
 ----
@@ -115,9 +117,12 @@ $ cd path/to/program
 $ python main.py
 ```
 
+## Use on a different video
+You have to define two lines that are parallel in the real word and add the distance in meter between these two.
+
 ## Modularity
 
-The program is structured in a way that is easy to add or modify any part of it. If you'd like to use a different detector or a different tracker model, you can simply choose a different class or, if new, add your new class on the `classes.py` file and make use of the modularity.
+The program is structured in a way that is easy to add or modify any part of it. If you'd like to use a different detector or a different tracker model, you can simply choose a different class or, if new, add your new class extending one of the classes of `classes.py` file and make use of the modularity.
 All classes are independent, a tracker can work con different detectors and vice-versa.
 
 ----
