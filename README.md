@@ -3,7 +3,7 @@ Vehicle Flow Computation:
 
 Politecnico di Milano Image Analysis and Computer Vision Project
 
-- Glen Nicolas Yvon Pouliquen
+- Glen Pouliquen
 - Andres Gonzalez Paul Rivera
 
 ----
