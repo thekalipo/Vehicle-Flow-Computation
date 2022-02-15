@@ -24,7 +24,7 @@ Politecnico di Milano Image Analysis and Computer Vision Project
 
 4. [How to use the code](#how-to-use)
 
-5. [Use on different video](#use-on-different-video)
+5. [Use on different video](#use-on-a-different-video)
 
 6. [Modularity](#modularity)
 
