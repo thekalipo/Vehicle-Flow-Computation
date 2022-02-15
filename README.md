@@ -64,11 +64,11 @@ For the object detection of this project we selected two different algorithms.
 
 First we use a frame by frame differentiation and apply a threshold to obtain sharper results. Then we dilate the image in order to avoid holes on the moving objects. Finally we get contours on the moving objects.
 
-The second one is the YOLO (You Only Look Once) algorithm which is a realtime object detection algorithm that uses a singl neural network on the image frame, it divides it into regions and predicts bounding boxes and probabilities for each region, which are weighted by their probabilities. 
+The second one is the YOLO (You Only Look Once) algorithm which is a realtime object detection algorithm that uses a singl neural network on the image frame, it divides it into regions and predicts bounding boxes and probabilities for each region, which are weighted by their probabilities. More preciselly we use [Yolo Fastest](https://github.com/dog-qiuqiu/Yolo-Fastest).
 
 ### **Object tracking**
 
-Once we detected objects we can track them. We use the SORT (Simple Online Realtime Tracking) algorithm which is a multi-object tracking system. This algorithm extracts features of the detected objects, it then uses a Kalman filter to predict the location, calculates the features similarities and the location distance between different frames. Computes the intersection-over-union (IOU) between the detection and the predicted candidate, and finally it updates the motion state by the Kalman filter and the motion prediction model.
+Once we detected objects we can track them. We use the [SORT](https://github.com/abewley/sort) (Simple Online Realtime Tracking) algorithm which is a multi-object tracking system. This algorithm extracts features of the detected objects, it then uses a Kalman filter to predict the location, calculates the features similarities and the location distance between different frames. Computes the intersection-over-union (IOU) between the detection and the predicted candidate, and finally it updates the motion state by the Kalman filter and the motion prediction model.
 
 ### **Vanishing point calculation**
 
@@ -173,5 +173,3 @@ https://pysource.com/2021/10/05/object-tracking-from-scratch-opencv-and-python/
 https://nanonets.com/blog/object-tracking-deepsort/
 
 https://stackoverflow.com/questions/36254452/counting-cars-opencv-python-issue/36274515#36274515
-
-https://docs.microsoft.com/en-us/azure/azure-video-analyzer/video-analyzer-docs/edge/use-line-crossing
