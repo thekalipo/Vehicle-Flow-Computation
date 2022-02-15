@@ -14,17 +14,28 @@ from classes.classes import *
 import sys
 video = sys.argv[1] if len(sys.argv) > 1 else 0
 
+distance = 27.43 #distance in m between the two lines
+# 10 feet, and the empty spaces in-between measure 30 feet, in our case must be in metters, so 40+40+10 => 27.43m
+
 if video == '1':
     video_name = "motorway.mov"
     line1 = [[617, 1100], [2970, 1075]] # [[617, 1300], [2970, 1275]]
     line2 = [[76, 1304], [3601, 1267]] #[[76, 1704], [3601, 1667]]
     detector = FrameSubDetector() # Detector
 elif video == '2':
-    # 1262, 1478
+    # 1280, 720
     video_name = "live.mov"
-    line1 = [[216,500], [1153, 400]]
-    line2 = [[218, 700], [1262, 550]]
-    detector = FasterYoloDetector() # Detector
+    line1 = [[400,360], [750, 360]]
+    line2 = [[300, 450], [900, 450]]
+    detector = FrameSubDetector() # Detector
+    distance = 10
+elif video == '3':
+    # 1920, 1080
+    video_name = "443.mp4"
+    line1 = [[480,520], [900, 550]]
+    line2 = [[330,580], [850, 630]]
+    detector = FrameSubDetector() # Detector
+    distance = 10
 else:
     video_name = "video.mp4"
     line1 = [[316,63], [453, 75]]
@@ -41,9 +52,7 @@ frame_number = 0
 
 processor = noProcessor() # processor
 
-distance = 27.43 #distance in m between the two lines
-# 10 feet, and the empty spaces in-between measure 30 feet, in our case must be in metters, so 40+40+10 => 27.43m
-tracker = sortTracker(f.shape[:2], line2, line1, 24.3, FPS)
+tracker = sortTracker(f.shape[:2], line2, line1, distance, FPS)
 #tracker = VehicleCounter(f.shape[:2], line2, line1, 24.3, FPS) #Tracker
 
 OUTPUT_EVERY = 15 # every 15 secs
