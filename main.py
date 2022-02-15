@@ -46,7 +46,7 @@ distance = 27.43 #distance in m between the two lines
 tracker = sortTracker(f.shape[:2], line2, line1, 24.3, FPS)
 #tracker = VehicleCounter(f.shape[:2], line2, line1, 24.3, FPS) #Tracker
 
-OUTPUT_EVERY = 5 # every 15 secs
+OUTPUT_EVERY = 15 # every 15 secs
 every = round(OUTPUT_EVERY * FPS)
 
 while(c.isOpened()):
