@@ -3,7 +3,7 @@ Vehicle Flow Computation:
 
 Politecnico di Milano Image Analysis and Computer Vision Project
 
-- Glen Nicolas Yvon Pouliquen
+- Glen Pouliquen
 - Andres Gonzalez Paul Rivera
 
 ----
@@ -24,9 +24,11 @@ Politecnico di Milano Image Analysis and Computer Vision Project
 
 4. [How to use the code](#how-to-use)
 
-5. [Modularity](#modularity)
+5. [Use on different video](#use-on-different-video)
 
-5. [Resources](#resources)
+6. [Modularity](#modularity)
+
+7. [Resources](#resources)
 
 ----
 
@@ -64,11 +66,11 @@ For the object detection of this project we selected two different algorithms.
 
 First we use a frame by frame differentiation and apply a threshold to obtain sharper results. Then we dilate the image in order to avoid holes on the moving objects. Finally we get contours on the moving objects.
 
-The second one is the YOLO (You Only Look Once) algorithm which is a realtime object detection algorithm that uses a single neural network on the image frame, it divides it into regions and predicts bounding boxes and probabilities for each region, which are weighted by their probabilities. 
+The second one is the YOLO (You Only Look Once) algorithm which is a realtime object detection algorithm that uses a single neural network on the image frame, it divides it into regions and predicts bounding boxes and probabilities for each region, which are weighted by their probabilities. More preciselly we use [Yolo Fastest](https://github.com/dog-qiuqiu/Yolo-Fastest).
 
 ### **Object tracking**
 
-Once we detected objects we can track them. We use the SORT (Simple Online Realtime Tracking) algorithm which is a multi-object tracking system. This algorithm extracts features of the detected objects by using a CNN, it then uses a Kalman filter to predict the location, calculates the features similarities and the location distance between different frames. Computes the intersection-over-union (IOU) between the detection and the predicted candidate, and finally it updates the motion state by the Kalman filter and the motion prediction model.
+Once we detected objects we can track them. We use the [SORT](https://github.com/abewley/sort) (Simple Online Realtime Tracking) algorithm which is a multi-object tracking system. This algorithm extracts features of the detected objects, it then uses a Kalman filter to predict the location, calculates the features similarities and the location distance between different frames. Computes the intersection-over-union (IOU) between the detection and the predicted candidate, and finally it updates the motion state by the Kalman filter and the motion prediction model.
 
 ### **Vanishing point calculation**
 
@@ -94,17 +96,22 @@ We know that: speed = distance / time
 
 Since we already obtained the distance of the vehicles, we need to compute the time, which is obtained by using the frames per second (fps) of the video. For each vehicle at a specific instant we obtain the diference of frames between the current one and the frame used to calculate the distance and divide it by the fps of the video.
 
+The average speed is also calculated using the time the vehicle puts to go from one marker to another.
+
 Finally the speed is multiplied by 3.6 on order to get km/h.
+
+Log files are created every 15 secs containing the average speed between the two lines of the counted vehicles in the last 15 secs.
 
 ----
 
 ## Dependencies
 
-To install the required dependencies run:
+To install required dependencies run:
 
 ```
 $ pip install -r requirements.txt
 ```
+
 
 ## How to use
 
@@ -115,7 +122,10 @@ $ cd path/to/program
 $ python main.py <number of video to use>
 ```
 
-The number of video goes from 0 to 2 in our specific case, but you can add new videos in the first condition of `main.py`. For new videos you'll need to specify the name of the video, whose file needs to be on the same folder, and select the positions of two lines and the distance between them.
+The number of video goes from 0 to 2 in our specific case, but you can add new videos in the first condition of `main.py`.
+
+## Use on a different video
+For new videos you'll need to specify the name of the video, whose file needs to be on the same folder, and define two lines that are parallel in the real word and add the distance in meter between these two.
 
 ## Modularity
 
@@ -176,5 +186,3 @@ https://pysource.com/2021/10/05/object-tracking-from-scratch-opencv-and-python/
 https://nanonets.com/blog/object-tracking-deepsort/
 
 https://stackoverflow.com/questions/36254452/counting-cars-opencv-python-issue/36274515#36274515
-
-https://docs.microsoft.com/en-us/azure/azure-video-analyzer/video-analyzer-docs/edge/use-line-crossing
