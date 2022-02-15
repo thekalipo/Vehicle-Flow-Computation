@@ -124,6 +124,10 @@ $ python main.py <number of video to use>
 
 The number of video goes from 0 to 2 in our specific case, but you can add new videos in the first condition of `main.py`.
 
+The videos in use for this project can be downloaded from the following links:
+
+- https://drive.google.com/drive/folders/1o7rHQya-vpG6E4iYuy6t1wrQ3KwSrzW3?usp=sharing
+
 ## Use on a different video
 For new videos you'll need to specify the name of the video, whose file needs to be on the same folder, and define two lines that are parallel in the real word and add the distance in meter between these two.
 
